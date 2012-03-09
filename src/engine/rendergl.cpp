@@ -2225,217 +2225,217 @@ void gl_drawhud(int w, int h)
     if(!hidehud && !mainmenu)
     {
         if(game::hudtheme == 0)
+	    {
+		if(!hidestats)
 		{
-				if(!hidestats)
+		    glPushMatrix();
+		    glScalef(conscale, conscale, 1);
+
+		    int roffset = 0;
+		    if(showfps)
+		    {
+		    static int lastfps = 0, prevfps[3] = { 0, 0, 0 }, curfps[3] = { 0, 0, 0 };
+		    if(totalmillis - lastfps >= statrate)
+		    {
+		    	memcpy(prevfps, curfps, sizeof(prevfps));
+		    	lastfps = totalmillis - (totalmillis%statrate);
+		    }
+			int nextfps[3];
+			getfps(nextfps[0], nextfps[1], nextfps[2]);
+			loopi(3) if(prevfps[i]==curfps[i]) curfps[i] = nextfps[i];
+			if(showfpsrange) draw_textf("fps %d+%d-%d", conw-7*FONTH, conth-FONTH*3/2, curfps[0], curfps[1], curfps[2]);
+			else draw_textf("fps %d", contw-5*FONTH, conth-FONTH*3/2, curfps[0]);
+			roffset += FONTH;
+		    }
+
+		    if(wallclock)
+		    {
+			if(!walltime) { walltime = time(NULL); walltime -= totalmillis/1000; if(!walltime) walltime++; }
+			time_t walloffset = walltime + totalmillis/1000;
+			struct tm *localvals = localtime(&walloffset);
+			static string buf;
+			if(localvals && strftime(buf, sizeof(buf), wallclocksecs ? (wallclock24 ? "%H:%M:%S" : "%I:%M:%S%p") : (wallclock24 ? "%H:%M" : "%I:%M%p"), localvals))
 			{
-				glPushMatrix();
-				glScalef(conscale, conscale, 1);
-
-				int roffset = 0;
-				if(showfps)
-				{
-					static int lastfps = 0, prevfps[3] = { 0, 0, 0 }, curfps[3] = { 0, 0, 0 };
-					if(totalmillis - lastfps >= statrate)
-					{
-						memcpy(prevfps, curfps, sizeof(prevfps));
-						lastfps = totalmillis - (totalmillis%statrate);
-					}
-					int nextfps[3];
-					getfps(nextfps[0], nextfps[1], nextfps[2]);
-					loopi(3) if(prevfps[i]==curfps[i]) curfps[i] = nextfps[i];
-					if(showfpsrange) draw_textf("fps %d+%d-%d", conw-7*FONTH, conth-FONTH*3/2, curfps[0], curfps[1], curfps[2]);
-					else draw_textf("fps %d", contw-5*FONTH, conth-FONTH*3/2, curfps[0]);
-					roffset += FONTH;
-				}
-
-				if(wallclock)
-				{
-					if(!walltime) { walltime = time(NULL); walltime -= totalmillis/1000; if(!walltime) walltime++; }
-					time_t walloffset = walltime + totalmillis/1000;
-					struct tm *localvals = localtime(&walloffset);
-					static string buf;
-					if(localvals && strftime(buf, sizeof(buf), wallclocksecs ? (wallclock24 ? "%H:%M:%S" : "%I:%M:%S%p") : (wallclock24 ? "%H:%M" : "%I:%M%p"), localvals))
-					{
-						// hack because not all platforms (windows) support %P lowercase option
-						// also strip leading 0 from 12 hour time
-						char *dst = buf;
-						const char *src = &buf[!wallclock24 && buf[0]=='0' ? 1 : 0];
-						while(*src) *dst++ = tolower(*src++);
-						*dst++ = '\0';
-						draw_text(buf, conw-5*FONTH, conth-FONTH*3/2-roffset);
-						roffset += FONTH;
-					}
-				}
-
-				if(editmode || showeditstats)
-				{
-					static int laststats = 0, prevstats[8] = { 0, 0, 0, 0, 0, 0, 0 }, curstats[8] = { 0, 0, 0, 0, 0, 0, 0 };
-					if(totalmillis - laststats >= statrate)
-					{
-						memcpy(prevstats, curstats, sizeof(prevstats));
-						laststats = totalmillis - (totalmillis%statrate);
-					}
-					int nextstats[8] =
-					{
-						vtris*100/max(wtris, 1),
-						vverts*100/max(wverts, 1),
-						xtraverts/1024,
-						xtravertsva/1024,
-						glde,
-						gbatches,
-						getnumqueries(),
-						rplanes
-					};
-					loopi(8) if(prevstats[i]==curstats[i]) curstats[i] = nextstats[i];
-
-					abovehud2 -= 2*FONTH;
-					draw_textf("wtr:%dk(%d%%) wvt:%dk(%d%%) evt:%dk eva:%dk", FONTH/2, abovehud2, wtris/1024, curstats[0], wverts/1024, curstats[1], curstats[2], curstats[3]);
-					draw_textf("ond:%d va:%d gl:%d(%d) oq:%d lm:%d rp:%d pvs:%d", FONTH/2, abovehud2+FONTH, allocnodes*8, allocva, curstats[4], curstats[5], curstats[6], lightmaps.length(), curstats[7], getnumviewcells());
-					limitgui2 = abovehud2;
-				}
-
-				if(editmode)
-				{
-					abovehud2 -= FONTH;
-					draw_textf("cube %s%d", FONTH/2, abovehud2, selchildcount<0 ? "1/" : "", abs(selchildcount));
-
-					char *editinfo = executeret("edithud");
-					if(editinfo)
-					{
-						abovehud2 -= FONTH;
-						draw_text(editinfo, FONTH/2, abovehud2);
-						DELETEA(editinfo);
-					}
-				}
-				else if(identexists("gamehud"))
-				{
-					char *gameinfo = executeret("gamehud");
-					if(gameinfo)
-					{
-						draw_text(gameinfo, conw-max(5*FONTH, 2*FONTH+text_width(gameinfo)), conth-FONTH*3/2-roffset);
-						DELETEA(gameinfo);
-						roffset += FONTH;
-					}
-				}
-
-				glPopMatrix();
+			    // hack because not all platforms (windows) support %P lowercase option
+			    // also strip leading 0 from 12 hour time
+			    char *dst = buf;
+			    const char *src = &buf[!wallclock24 && buf[0]=='0' ? 1 : 0];
+			    while(*src) *dst++ = tolower(*src++);
+			    *dst++ = '\0';
+			    draw_text(buf, conw-5*FONTH, conth-FONTH*3/2-roffset);
+			    roffset += FONTH;
 			}
+		    }
 
-			if(hidestats || (!editmode && !showeditstats))
+		    if(editmode || showeditstats)
+		    {
+			static int laststats = 0, prevstats[8] = { 0, 0, 0, 0, 0, 0, 0 }, curstats[8] = { 0, 0, 0, 0, 0, 0, 0 };
+			if(totalmillis - laststats >= statrate)
+		    {
+			memcpy(prevstats, curstats, sizeof(prevstats));
+			laststats = totalmillis - (totalmillis%statrate);
+		    }
+		    int nextstats[8] =
+		    {
+			vtris*100/max(wtris, 1),
+			vverts*100/max(wverts, 1),
+			xtraverts/1024,
+			xtravertsva/1024,
+			glde,
+			gbatches,
+			getnumqueries(),
+			rplanes
+		    };
+		    loopi(8) if(prevstats[i]==curstats[i]) curstats[i] = nextstats[i];
+
+		    abovehud2 -= 2*FONTH;
+		    draw_textf("wtr:%dk(%d%%) wvt:%dk(%d%%) evt:%dk eva:%dk", FONTH/2, abovehud2, wtris/1024, curstats[0], wverts/1024, curstats[1], curstats[2], curstats[3]);
+		    draw_textf("ond:%d va:%d gl:%d(%d) oq:%d lm:%d rp:%d pvs:%d", FONTH/2, abovehud2+FONTH, allocnodes*8, allocva, curstats[4], curstats[5], curstats[6], lightmaps.length(), curstats[7], getnumviewcells());
+		    limitgui2 = abovehud2;
+		    }
+
+		    if(editmode)
+		    {
+			abovehud2 -= FONTH;
+			draw_textf("cube %s%d", FONTH/2, abovehud2, selchildcount<0 ? "1/" : "", abs(selchildcount));
+
+			char *editinfo = executeret("edithud");
+			if(editinfo)
 			{
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				game::gameplayhud(w, h);
-				limitgui2 = abovehud2 = min(abovehud, int(conth*game::abovegameplayhud(w, h)));
+			    abovehud2 -= FONTH;
+			    draw_text(editinfo, FONTH/2, abovehud2);
+			    DELETEA(editinfo);
 			}
+		    }
+		    else if(identexists("gamehud"))
+		    {
+			char *gameinfo = executeret("gamehud");
+			if(gameinfo)
+			{
+			    draw_text(gameinfo, conw-max(5*FONTH, 2*FONTH+text_width(gameinfo)), conth-FONTH*3/2-roffset);
+			    DELETEA(gameinfo);
+			    roffset += FONTH;
+			}
+		    }
 
-			rendertexturepanel(w, h);
+		    glPopMatrix();
 		}
-		else if(game::hudtheme == 1)
+
+		if(hidestats || (!editmode && !showeditstats))
 		{
-			if(!hidestats)
-			{
-				glPushMatrix();
-				glScalef(conscale, conscale, 1);
-
-				int roffset = 0;
-				if(showfps)
-				{
-					static int lastfps = 0, prevfps[3] = { 0, 0, 0 }, curfps[3] = { 0, 0, 0 };
-					if(totalmillis - lastfps >= statrate)
-					{
-						memcpy(prevfps, curfps, sizeof(prevfps));
-						lastfps = totalmillis - (totalmillis%statrate);
-					}
-					int nextfps[3];
-					getfps(nextfps[0], nextfps[1], nextfps[2]);
-					loopi(3) if(prevfps[i]==curfps[i]) curfps[i] = nextfps[i];
-					if(showfpsrange) draw_textf("fps %d+%d-%d", conw-7*FONTH, FONTH*textoff, curfps[0], curfps[1], curfps[2]);
-					else draw_textf("fps %d", conw-5*FONTH, FONTH*textoff, curfps[0]);
-					roffset += FONTH;
-				}
-
-				if(wallclock)
-				{
-					if(!walltime) { walltime = time(NULL); walltime -= totalmillis/1000; if(!walltime) walltime++; }
-					time_t walloffset = walltime + totalmillis/1000;
-					struct tm *localvals = localtime(&walloffset);
-					static string buf;
-					if(localvals && strftime(buf, sizeof(buf), wallclocksecs ? (wallclock24 ? "%H:%M:%S" : "%I:%M:%S%p") : (wallclock24 ? "%H:%M" : "%I:%M%p"), localvals))
-					{
-						// hack because not all platforms (windows) support %P lowercase option
-						// also strip leading 0 from 12 hour time
-						char *dst = buf;
-						const char *src = &buf[!wallclock24 && buf[0]=='0' ? 1 : 0];
-						while(*src) *dst++ = tolower(*src++);
-						*dst++ = '\0';
-						draw_text(buf, conw-5*FONTH, FONTH*textoff+roffset);
-						roffset += FONTH;
-					}
-				}
-
-				if(editmode || showeditstats)
-				{
-					static int laststats = 0, prevstats[8] = { 0, 0, 0, 0, 0, 0, 0 }, curstats[8] = { 0, 0, 0, 0, 0, 0, 0 };
-					if(totalmillis - laststats >= statrate)
-					{
-						memcpy(prevstats, curstats, sizeof(prevstats));
-						laststats = totalmillis - (totalmillis%statrate);
-					}
-					int nextstats[8] =
-					{
-						vtris*100/max(wtris, 1),
-						vverts*100/max(wverts, 1),
-						xtraverts/1024,
-						xtravertsva/1024,
-						glde,
-						gbatches,
-						getnumqueries(),
-						rplanes
-					};
-					loopi(8) if(prevstats[i]==curstats[i]) curstats[i] = nextstats[i];
-
-					//abovehud -= 2*FONTH;
-					draw_textf("wtr:%dk(%d%%) wvt:%dk(%d%%) evt:%dk eva:%dk", FONTH/2, abovehud, wtris/1024, curstats[0], wverts/1024, curstats[1], curstats[2], curstats[3]);
-					draw_textf("ond:%d va:%d gl:%d(%d) oq:%d lm:%d rp:%d pvs:%d", FONTH/2, abovehud+FONTH, allocnodes*8, allocva, curstats[4], curstats[5], curstats[6], lightmaps.length(), curstats[7], getnumviewcells());
-					//limitgui = abovehud;
-				}
-
-				if(editmode)
-				{
-					abovehud -= FONTH;
-					draw_textf("cube %s%d", FONTH/2, abovehud, selchildcount<0 ? "1/" : "", abs(selchildcount));
-
-					char *editinfo = executeret("edithud");
-					if(editinfo)
-					{
-						abovehud -= FONTH;
-						draw_text(editinfo, FONTH/2, abovehud);
-						DELETEA(editinfo);
-					}
-				}
-				else if(identexists("gamehud"))
-				{
-					char *gameinfo = executeret("gamehud");
-					if(gameinfo)
-					{
-						draw_text(gameinfo, conw-max(5*FONTH, 2*FONTH+text_width(gameinfo)), conh-FONTH*8/1-roffset);
-						DELETEA(gameinfo);
-						roffset += FONTH;
-					}
-				}
-
-				glPopMatrix();
-			}
-
-			if(hidestats || (!editmode && !showeditstats))
-			{
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				game::gameplayhud(w, h);
-				limitgui = abovehud = min(abovehud, int(conh*game::abovegameplayhud(w, h)));
-			}
-
-			rendertexturepanel(w, h);
+		    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		    game::gameplayhud(w, h);
+		    limitgui2 = abovehud2 = min(abovehud, int(conth*game::abovegameplayhud(w, h)));
 		}
+
+		rendertexturepanel(w, h);
+	    }
+	    else if(game::hudtheme == 1)
+	    {
+	    if(!hidestats)
+	    {
+		glPushMatrix();
+		glScalef(conscale, conscale, 1);
+
+		int roffset = 0;
+		if(showfps)
+		{
+		    static int lastfps = 0, prevfps[3] = { 0, 0, 0 }, curfps[3] = { 0, 0, 0 };
+		    if(totalmillis - lastfps >= statrate)
+		    {
+			memcpy(prevfps, curfps, sizeof(prevfps));
+			lastfps = totalmillis - (totalmillis%statrate);
+		    }
+		    int nextfps[3];
+		    getfps(nextfps[0], nextfps[1], nextfps[2]);
+		    loopi(3) if(prevfps[i]==curfps[i]) curfps[i] = nextfps[i];
+		    if(showfpsrange) draw_textf("fps %d+%d-%d", conw-7*FONTH, FONTH*textoff, curfps[0], curfps[1], curfps[2]);
+		    else draw_textf("fps %d", conw-5*FONTH, FONTH*textoff, curfps[0]);
+		    roffset += FONTH;
+		}
+
+		if(wallclock)
+		{
+		    if(!walltime) { walltime = time(NULL); walltime -= totalmillis/1000; if(!walltime) walltime++; }
+		    time_t walloffset = walltime + totalmillis/1000;
+		    struct tm *localvals = localtime(&walloffset);
+		    static string buf;
+		    if(localvals && strftime(buf, sizeof(buf), wallclocksecs ? (wallclock24 ? "%H:%M:%S" : "%I:%M:%S%p") : (wallclock24 ? "%H:%M" : "%I:%M%p"), localvals))
+		    {
+			// hack because not all platforms (windows) support %P lowercase option
+			// also strip leading 0 from 12 hour time
+			char *dst = buf;
+			const char *src = &buf[!wallclock24 && buf[0]=='0' ? 1 : 0];
+			while(*src) *dst++ = tolower(*src++);
+			*dst++ = '\0';
+			draw_text(buf, conw-5*FONTH, FONTH*textoff+roffset);
+			roffset += FONTH;
+		    }
+		}
+
+		if(editmode || showeditstats)
+		{   
+		    int laststats = 0, prevstats[8] = { 0, 0, 0, 0, 0, 0, 0 }, curstats[8] = { 0, 0, 0, 0, 0, 0, 0 };
+		    if(totalmillis - laststats >= statrate)
+		    {
+			memcpy(prevstats, curstats, sizeof(prevstats));
+			laststats = totalmillis - (totalmillis%statrate);
+		    }
+		    int nextstats[8] =
+		    {
+			vtris*100/max(wtris, 1),
+			vverts*100/max(wverts, 1),
+			xtraverts/1024,
+			xtravertsva/1024,
+			glde,
+			gbatches,
+			getnumqueries(),
+			rplanes
+		    };
+		    loopi(8) if(prevstats[i]==curstats[i]) curstats[i] = nextstats[i];
+
+		    //abovehud -= 2*FONTH;
+		    draw_textf("wtr:%dk(%d%%) wvt:%dk(%d%%) evt:%dk eva:%dk", FONTH/2, abovehud, wtris/1024, curstats[0], wverts/1024, curstats[1], curstats[2], curstats[3]);
+		    draw_textf("ond:%d va:%d gl:%d(%d) oq:%d lm:%d rp:%d pvs:%d", FONTH/2, abovehud+FONTH, allocnodes*8, allocva, curstats[4], curstats[5], curstats[6], lightmaps.length(), curstats[7], getnumviewcells());
+		    //limitgui = abovehud;
+		}
+
+		if(editmode)
+		{
+		    abovehud -= FONTH;
+		    draw_textf("cube %s%d", FONTH/2, abovehud, selchildcount<0 ? "1/" : "", abs(selchildcount));
+
+		    char *editinfo = executeret("edithud");
+		    if(editinfo)
+		    {
+			abovehud -= FONTH;
+			draw_text(editinfo, FONTH/2, abovehud);
+			DELETEA(editinfo);
+		    }
+		}
+		else if(identexists("gamehud"))
+		{
+		    char *gameinfo = executeret("gamehud");
+		    if(gameinfo)
+		    {
+			draw_text(gameinfo, conw-max(5*FONTH, 2*FONTH+text_width(gameinfo)), conh-FONTH*12/1-roffset);
+			DELETEA(gameinfo);
+			roffset += FONTH;
+		    }
+		}
+
+		glPopMatrix();
+	    }
+
+	    if(hidestats || (!editmode && !showeditstats))
+	    {
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		game::gameplayhud(w, h);
+		limitgui = abovehud = min(abovehud, int(conh*game::abovegameplayhud(w, h)));
+	    }
+
+	    rendertexturepanel(w, h);
+	}
     }
 
     g3d_limitscale((2*limitgui - conh) / float(conh));

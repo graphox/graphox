@@ -332,7 +332,7 @@ namespace game
                 g.pushlist();
                 
                 g.pushlist();
-                g.text("spectator", 0xFFFF80, " ");
+                g.textf("%d spectator%s", 0xFFFF80, " ", spectators.length(), spectators.length()!=1 ? "s" : "");
                 loopv(spectators) 
                 {
                     fpsent *o = spectators[i];

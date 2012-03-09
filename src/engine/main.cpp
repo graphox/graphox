@@ -137,7 +137,7 @@ void writeinitcfg()
     delete f;
 }
 
-COMMAND(quit, "");
+ICOMMAND(quitgame, "", (), quit());
 
 void getbackgroundres(int &w, int &h)
 {
@@ -1679,7 +1679,8 @@ int main(int argc, char **argv)
     execfile("data/menus.cfg");
     execfile("data/sounds.cfg");
     execfile("data/brush.cfg");
-    execfile("data/themes/conf.cfg");
+    execfile("data/themes/commands.cfg");
+    execfile("data/themes/menus.cfg");
     execfile("mybrushes.cfg", false);
     if(game::savedservers()) execfile(game::savedservers(), false);
 

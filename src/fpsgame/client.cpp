@@ -3,6 +3,8 @@ using namespace std;
 
 namespace game
 {
+    VARP(_Graphox_allow_highlight, 0, 0, 1);
+
     VARP(minradarscale, 0, 384, 10000);
     VARP(maxradarscale, 1, 1024, 10000);
     FVARP(minimapalpha, 0, 1, 1);
@@ -191,6 +193,8 @@ namespace game
         return d ? d->ping : -1;
     }
     ICOMMAND(getclientping, "i", (int *cn), intret(getclientping(*cn)));
+    ICOMMAND(getping, "", (), intret(player1->ping));
+    ICOMMAND(getpj, "", (), intret(player1->plag));
 
     const char *getclientname(int cn)
     {
@@ -1168,7 +1172,7 @@ namespace game
                 if(d->state!=CS_DEAD && d->state!=CS_SPECTATOR)
                     particle_textcopy(d->abovehead(), text, PART_TEXT, 2000, 0x32FF64, 4.0f, -8);
 
-                if (strstr(text, player1->name)) {
+                if (strstr(text, player1->name) && _Graphox_allow_highlight == 1) {
                     defformatstring(name)("\f6%s\f3", player1->name);
 
                     conoutf(CON_CHAT, "%s:\f3 %s", colorname(d), strreplace(text, player1->name, name));
@@ -1193,7 +1197,7 @@ namespace game
                 if(t->state!=CS_DEAD && t->state!=CS_SPECTATOR)
                     particle_textcopy(t->abovehead(), text, PART_TEXT, 2000, 0x6496FF, 4.0f, -8);
 
-                if (strstr(text, player1->name)) {
+                if (strstr(text, player1->name) && _Graphox_allow_highlight == 1) {
                     defformatstring(name)("\f6%s\f3", player1->name);
 
                     conoutf(CON_CHAT, "%s:\f3 %s", colorname(d), strreplace(text, player1->name, name));

@@ -450,6 +450,10 @@
 			<Option target="default" />
 			<Option target="debug" />
 		</Unit>
+		<Unit filename="..\fpsgame\help.cpp">
+			<Option target="default" />
+			<Option target="debug" />
+		</Unit>
 		<Unit filename="..\fpsgame\movable.cpp">
 			<Option target="default" />
 			<Option target="debug" />
