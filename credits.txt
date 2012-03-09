@@ -1,0 +1,29 @@
+*// THEMES
+
+    */ HUD Theme
+
+	Q009 is the creator of the HUD theme for SE! Thanks Q!
+
+    */ Red Eclipse
+
+	Thumbs up R.E. developers!
+
+    */ SauerEnhanced
+
+	Q009 made this theme for Sauerbraten Enhanced, and he let us use it. thanks again, Q009!
+
+    */ OSH CrasH
+
+	Made by the OSH clan, permission given to use by a_teammate (Ade)
+
+    */ Default
+
+	WOOP WOOP Sauerbraten developers!
+
+
+
+*// JOYSTICK CONTROL
+
+    */ Bullet
+
+	Bullet is a 3D Collision Detection and Rigid Body Dynamics Library for games and animation.

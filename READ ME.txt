@@ -1,0 +1,25 @@
+*//// HOW TO INSTALL //*
+
+    */// If you're on a Linux-based operating system (Ubuntu, Debain, etc.) /*
+
+	*// If you used apt-get or aptitude /*
+
+	    */ If you have an x86 (32-bit) operating system /*
+
+		Copy the files named "linux_client" and "linux_server" from the bin_unix folder to /usr/share/games/sauerbraten
+		Copy the "data" folder and the files "once.cfg" and "autoexec.cfg" into  into /home/<username>/.sauerbraten/
+
+	    */ If you have an x64 (64-bit) operating system /*
+
+		Copy the files named "linux_64_client" and "linux_64_server" from the bin_unix folder to /usr/share/games/sauerbraten
+		Copy the "data" folder and the files "once.cfg" and "autoexec.cfg" into  into /home/<username>/.sauerbraten/
+
+	*// If you downloaded the tarball from http://sourceforge.net/projects/sauerbraten/ , copy all files into your main Sauerbraten directory
+
+    */// If you're on a NT Windows-based (Windows NT and newer) ///*
+
+	Copy all the files into your main Sauerbraten folder.
+
+    */// If you're on a Mac OS 10.x.x (OS X) ///*
+
+	Sorry, we don't support Mac users at the moment!
