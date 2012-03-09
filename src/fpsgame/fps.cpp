@@ -1494,10 +1494,3 @@ namespace game
         execfile("auth.cfg", false);
     }
 }
-
-
-    ICOMMAND(getfollow, "", (),
-    {
-        fpsent *f = followingplayer();
-        intret(f ? f->clientnum : -1);
-    });
