@@ -2090,8 +2090,6 @@ void drawcrosshair(int w, int h)
     Texture *crosshair;
     if(windowhit)
     {
-        //static Texture *cursor = NULL;
-
         if(theme == 3)
         {
             if(!gui::cursortex) gui::cursortex = textureload("data/themes/red eclipse/cursor.png", 3, true);
@@ -2110,7 +2108,7 @@ void drawcrosshair(int w, int h)
     }
     else
     {
-        int index = game::selectcrosshair(r, g, b);
+        int index = game::selectcrosshair(r, g, b, w, h);
         if(index < 0) return;
         if(!crosshairfx)
         {
