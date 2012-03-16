@@ -201,7 +201,6 @@ namespace game
         return d ? d->plag : -1;
     }
     ICOMMAND(getclientpj, "i", (int *cn), intret(getclientpj(*cn)));
-    ICOMMAND(getpj, "", (), intret(player1->plag));
 
     const char *getclientname(int cn)
     {
