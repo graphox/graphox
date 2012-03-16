@@ -2090,6 +2090,8 @@ void drawcrosshair(int w, int h)
     Texture *crosshair;
     if(windowhit)
     {
+        //static Texture *cursor = NULL;
+
         if(theme == 3)
         {
             if(!gui::cursortex) gui::cursortex = textureload("data/themes/red eclipse/cursor.png", 3, true);
@@ -2372,7 +2374,7 @@ void gl_drawhud(int w, int h)
 		}
 
 		if(editmode || showeditstats)
-		{   
+		{
 		    int laststats = 0, prevstats[8] = { 0, 0, 0, 0, 0, 0, 0 }, curstats[8] = { 0, 0, 0, 0, 0, 0, 0 };
 		    if(totalmillis - laststats >= statrate)
 		    {

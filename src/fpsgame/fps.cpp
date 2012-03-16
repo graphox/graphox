@@ -653,12 +653,12 @@ namespace game
 
         if(actor->type==ENT_AI)
         {
-	    conoutf(contype, "\f2%s got killed by %s", dname, aname);
+            conoutf(contype, "\f2%s got killed by %s", dname, aname);
             ffrag2 = 1;
             when2 = totalmillis;
             copystring(who3, aname);
             ismate = 0;
-	}
+        }
         else if(d==actor || actor->type==ENT_INANIMATE)
         {
             if(d==player1)
@@ -675,13 +675,13 @@ namespace game
             {
             	conoutf(contype, "\f3you fragged a teammate (%s)", dname);
 
-		if(_Graphox_autosorry == 1)
+                if(_Graphox_autosorry == 1)
             	{
             		defformatstring(message)(sr_string, dname);
 
             		conoutf(CON_CHAT, "\f4| %s", message);
-			addmsg(N_TEXT, "rcs", player1, message);
-		}
+                    addmsg(N_TEXT, "rcs", player1, message);
+                }
 
                 ffrag = 1;
                 when = totalmillis;
@@ -692,13 +692,13 @@ namespace game
             {
             	conoutf(contype, "\f3you got fragged by a teammate (%s)", aname);
 
-		if(_Graphox_autonp == 1)
+                if(_Graphox_autonp == 1)
             	{
             		defformatstring(message)(np_string, aname);
 
             		conoutf(CON_CHAT, "\f4| %s", message);
-			addmsg(N_TEXT, "rcs", player1, message);
-		}
+                    addmsg(N_TEXT, "rcs", player1, message);
+                }
 
                 ffrag2 = 1;
                 when2 = totalmillis;

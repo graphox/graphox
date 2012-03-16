@@ -192,16 +192,15 @@ namespace game
         fpsent *d = getclient(cn);
         return d ? d->ping : -1;
     }
+    ICOMMAND(getclientping, "i", (int *cn), intret(getclientping(*cn)));
+    ICOMMAND(getping, "", (), intret(player1->ping));
 
     int getclientpj(int cn)
     {
         fpsent *d = getclient(cn);
         return d ? d->plag : -1;
     }
-
-    ICOMMAND(getclientping, "i", (int *cn), intret(getclientping(*cn)));
     ICOMMAND(getclientpj, "i", (int *cn), intret(getclientpj(*cn)));
-    ICOMMAND(getping, "", (), intret(player1->ping));
     ICOMMAND(getpj, "", (), intret(player1->plag));
 
     const char *getclientname(int cn)
