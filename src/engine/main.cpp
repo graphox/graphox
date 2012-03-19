@@ -40,6 +40,7 @@ void quit()                     // normal exit
     writeservercfg();
 
     writecfg();
+    game::writestats();
 
     abortconnect();
     disconnect();
@@ -1465,6 +1466,31 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep)
 
 #define MAXFPSHISTORY 60
 
+const char *loadbackinfo = "";
+
+void eastereggs()
+{
+    time_t ct = time(NULL); // current time
+    struct tm *lt = localtime(&ct);
+
+    /*
+    tm_sec      seconds after the minute (0-61)
+    tm_min      minutes after the hour (0-59)
+    tm_hour     hours since midnight (0-23)
+    tm_mday     day of the month (1-31)
+    tm_mon      months since January (0-11)
+    tm_year     elapsed years since 1900
+    tm_wday     days since Sunday (0-6)
+    tm_yday     days since January 1st (0-365)
+    tm_isdst    1 if daylight savings is on, zero if not,
+    */
+    int month = lt->tm_mon+1, day = lt->tm_wday+1, mday = lt->tm_mday;
+    if(day == 6 && mday == 13) loadbackinfo = "Friday the 13th";
+    else if(month == 10 && mday == 31) loadbackinfo = "Happy Halloween!";
+    if(month == 2 && mday == 9)     loadbackinfo = "Happy Birthday Quin!";
+    if(month == 11 && mday == 11)    loadbackinfo = "Happy Birthday gear4!";
+}
+
 int fpspos = 0, fpshistory[MAXFPSHISTORY];
 
 void resetfpshistory()
@@ -1623,6 +1649,7 @@ int main(int argc, char **argv)
     initserver(dedicated>0, dedicated>1);  // never returns if dedicated
     ASSERT(dedicated <= 1);
     game::initclient();
+    game::dotime();
 
     log("video: mode");
     const SDL_VideoInfo *video = SDL_GetVideoInfo();
@@ -1638,6 +1665,8 @@ int main(int argc, char **argv)
     SDL_WM_SetCaption("Cube 2: Sauerbraten", NULL);
     keyrepeat(false);
     SDL_ShowCursor(0);
+
+    eastereggs();
 
     log("gl");
     gl_checkextensions();

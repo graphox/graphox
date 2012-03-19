@@ -87,8 +87,17 @@ namespace game
     extern void serverinfoendcolumn(g3d_gui *g, int i);
     extern bool serverinfoentry(g3d_gui *g, int i, const char *name, int port, const char *desc, const char *map, int ping, const vector<int> &attr, int np);
     extern bool needminimap();
+<<<<<<< .mine
+
+    extern int stats[27];
+    extern void writestats();
+    extern void dotime();
 }
 
+=======
+}
+
+>>>>>>> .r17
 namespace server
 {
     extern void *newclientinfo();

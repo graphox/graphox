@@ -618,6 +618,32 @@ namespace game
         }
     }
 
+    int lastacc = 0;
+    bool firstcheck = true;
+    int oldacc = 0;
+
+    void statsacc() //accuracy stats updating
+    {
+        int accuracy = player1->totaldamage*100/max(player1->totalshots, 1);    //current accuracy
+        if((totalmillis >= lastacc+30000 && firstcheck) || (totalmillis >= lastacc+5000 && !firstcheck))  //First check - 30s to prevent getting 100% accuracy into avg
+        {
+            if(!game::stats[3] && accuracy)
+            {
+                game::stats[3] = accuracy;
+                game::stats[11]++;
+                oldacc = accuracy;
+                firstcheck = false;
+            }
+            else if(game::stats[3] && accuracy && accuracy != oldacc)
+            {
+                game::stats[3] = ((game::stats[3]*game::stats[11])+accuracy) / (game::stats[11]+1);
+                game::stats[11]++;
+                oldacc = accuracy;
+            }
+            lastacc = totalmillis;
+        }
+    }
+
     int ffrag = 0;
     int when = 0;
     string who;
@@ -651,6 +677,8 @@ namespace game
         copystring(dname, d==player1 ? "you" : colorname(d));
         copystring(aname, actor==player1 ? "you" : colorname(actor));
 
+        if(d==player1) game::stats[4]++;
+
         if(actor->type==ENT_AI)
         {
             conoutf(contype, "\f2%s got killed by %s", dname, aname);
@@ -664,6 +692,7 @@ namespace game
             if(d==player1)
             {
                 conoutf(contype, "\f6you died");
+                game::stats[18]++;
             }
             else conoutf(contype, "\f2%s died", dname);
         }
@@ -683,6 +712,8 @@ namespace game
                     addmsg(N_TEXT, "rcs", player1, message);
                 }
 
+                stats[26]++;
+
                 ffrag = 1;
                 when = totalmillis;
                 copystring(who, dname);
@@ -699,6 +730,8 @@ namespace game
             		conoutf(CON_CHAT, "\f4| %s", message);
                     addmsg(N_TEXT, "rcs", player1, message);
                 }
+
+                stats[27];
 
                 ffrag2 = 1;
                 when2 = totalmillis;
@@ -726,6 +759,11 @@ namespace game
                     when = totalmillis;
                     copystring(who, dname);
                     ismate2 = 0;
+
+                    if(d->ai) game::stats[6]++;
+                    if(!d->ai) game::stats[8]++;
+                    if(player1->gunselect == 0) game::stats[17]++;
+                    if(!strcmp(d->name, "unnamed")) game::stats[7]++;
                 }
             }
         }
@@ -913,7 +951,7 @@ namespace game
         if(d->type==ENT_INANIMATE) return;
         if     (waterlevel>0) { if(material!=MAT_LAVA) playsound(S_SPLASH1, d==player1 ? NULL : &d->o); }
         else if(waterlevel<0) playsound(material==MAT_LAVA ? S_BURN : S_SPLASH2, d==player1 ? NULL : &d->o);
-        if     (floorlevel>0) { if(d==player1 || d->type!=ENT_PLAYER || ((fpsent *)d)->ai) msgsound(S_JUMP, d); }
+        if     (floorlevel>0) { if(d==player1 || d->type!=ENT_PLAYER || ((fpsent *)d)->ai) msgsound(S_JUMP, d); if(d==player1) game::stats[2]++; }
         else if(floorlevel<0) { if(d==player1 || d->type!=ENT_PLAYER || ((fpsent *)d)->ai) msgsound(S_LAND, d); }
     }
 

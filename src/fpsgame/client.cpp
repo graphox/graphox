@@ -782,10 +782,48 @@ namespace game
         }
     }
 
-    void toserver(char *text) { conoutf(CON_CHAT, "%s:\f0 %s", colorname(player1), text); addmsg(N_TEXT, "rcs", player1, text); }
+    void toserver(char *text) {
+        if(strstr(text, "lol") ||
+          strstr(text, "Lol") ||
+          strstr(text, "LoL") ||
+          strstr(text, "LOL") ||
+          strstr(text, "LOl") ||
+          strstr(text, "lOl") ||
+          strstr(text, "lOL") ||
+          strstr(text, "loL") ||
+          strstr(text, "l0l") ||
+          strstr(text, "L0l") ||
+          strstr(text, "L0L") ||
+          strstr(text, "L0L") ||
+          strstr(text, "L0l") ||
+          strstr(text, "l0l") ||
+          strstr(text, "l0L") ||
+          strstr(text, "l0L")) game::stats[12]++;
+        conoutf(CON_CHAT, "%s:\f0 %s", colorname(player1), text);
+        addmsg(N_TEXT, "rcs", player1, text);
+    }
     COMMANDN(say, toserver, "C");
 
-    void sayteam(char *text) { conoutf(CON_TEAMCHAT, "%s:\f1 %s", colorname(player1), text); addmsg(N_SAYTEAM, "rcs", player1, text); }
+    void sayteam(char *text) {
+        if(strstr(text, "lol") ||
+          strstr(text, "Lol") ||
+          strstr(text, "LoL") ||
+          strstr(text, "LOL") ||
+          strstr(text, "LOl") ||
+          strstr(text, "lOl") ||
+          strstr(text, "lOL") ||
+          strstr(text, "loL") ||
+          strstr(text, "l0l") ||
+          strstr(text, "L0l") ||
+          strstr(text, "L0L") ||
+          strstr(text, "L0L") ||
+          strstr(text, "L0l") ||
+          strstr(text, "l0l") ||
+          strstr(text, "l0L") ||
+          strstr(text, "l0L")) game::stats[12]++;
+        conoutf(CON_TEAMCHAT, "%s:\f1 %s", colorname(player1), text);
+        addmsg(N_SAYTEAM, "rcs", player1, text);
+    }
     COMMAND(sayteam, "C");
 
     static void sendposition(fpsent *d, packetbuf &q)
