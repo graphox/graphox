@@ -40,6 +40,7 @@ void quit()                     // normal exit
     writeservercfg();
 
     writecfg();
+
     game::writestats();
 
     abortconnect();
@@ -1466,31 +1467,6 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep)
 
 #define MAXFPSHISTORY 60
 
-const char *loadbackinfo = "";
-
-void eastereggs()
-{
-    time_t ct = time(NULL); // current time
-    struct tm *lt = localtime(&ct);
-
-    /*
-    tm_sec      seconds after the minute (0-61)
-    tm_min      minutes after the hour (0-59)
-    tm_hour     hours since midnight (0-23)
-    tm_mday     day of the month (1-31)
-    tm_mon      months since January (0-11)
-    tm_year     elapsed years since 1900
-    tm_wday     days since Sunday (0-6)
-    tm_yday     days since January 1st (0-365)
-    tm_isdst    1 if daylight savings is on, zero if not,
-    */
-    int month = lt->tm_mon+1, day = lt->tm_wday+1, mday = lt->tm_mday;
-    if(day == 6 && mday == 13) loadbackinfo = "Friday the 13th";
-    else if(month == 10 && mday == 31) loadbackinfo = "Happy Halloween!";
-    if(month == 2 && mday == 9)     loadbackinfo = "Happy Birthday Quin!";
-    if(month == 11 && mday == 11)    loadbackinfo = "Happy Birthday gear4!";
-}
-
 int fpspos = 0, fpshistory[MAXFPSHISTORY];
 
 void resetfpshistory()
@@ -1561,6 +1537,24 @@ void initjoystick()
 	printf("%s: %d axes, %d buttons, %d balls, %d hats\n", SDL_JoystickName(0), SDL_JoystickNumAxes(joystick), SDL_JoystickNumButtons(joystick), SDL_JoystickNumBalls(joystick), SDL_JoystickNumHats(joystick));
 }
 #endif
+
+void readstats()
+{
+    char buf[64];   //Stats might be long after longer play and i'm afraid of that 32 won't be engough in that situtation
+    int statsdata[2];
+    stream *f = openfile("data/themes/stats", "r");
+    if(!f)
+    {
+        conoutf("error opening stats file");
+        return;
+    }
+    while(f->getline(buf, sizeof(buf)))
+    {
+        sscanf(buf, "stats[%d] = %d", &statsdata[0], &statsdata[1]);
+        game::stats[statsdata[0]] = statsdata[1];
+    }
+    f->close();
+}
 
 int main(int argc, char **argv)
 {
@@ -1649,7 +1643,7 @@ int main(int argc, char **argv)
     initserver(dedicated>0, dedicated>1);  // never returns if dedicated
     ASSERT(dedicated <= 1);
     game::initclient();
-    game::dotime();
+    readstats();
 
     log("video: mode");
     const SDL_VideoInfo *video = SDL_GetVideoInfo();
@@ -1665,8 +1659,6 @@ int main(int argc, char **argv)
     SDL_WM_SetCaption("Cube 2: Sauerbraten", NULL);
     keyrepeat(false);
     SDL_ShowCursor(0);
-
-    eastereggs();
 
     log("gl");
     gl_checkextensions();
@@ -1786,8 +1778,11 @@ int main(int argc, char **argv)
         tryedit();
 
         if(lastmillis) game::updateworld();
+        if(!mainmenu) game::statsacc();
 
         checksleep(lastmillis);
+
+        game::dotime();
 
         serverslice(false, 0);
 

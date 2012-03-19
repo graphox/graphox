@@ -999,7 +999,7 @@ Texture *textureload(const char *name, int clamp, bool mipit, bool msg)
 void themereload() {
 	g3d_themereload();
 
-    game::stats[25]++;
+	game::stats[25]++;
 }
 
 SVARP(p, "");

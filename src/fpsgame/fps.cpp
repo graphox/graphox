@@ -704,6 +704,8 @@ namespace game
             {
             	conoutf(contype, "\f3you fragged a teammate (%s)", dname);
 
+            	game::stats[26]++;
+
                 if(_Graphox_autosorry == 1)
             	{
             		defformatstring(message)(sr_string, dname);
@@ -711,8 +713,6 @@ namespace game
             		conoutf(CON_CHAT, "\f4| %s", message);
                     addmsg(N_TEXT, "rcs", player1, message);
                 }
-
-                stats[26]++;
 
                 ffrag = 1;
                 when = totalmillis;
@@ -723,6 +723,8 @@ namespace game
             {
             	conoutf(contype, "\f3you got fragged by a teammate (%s)", aname);
 
+            	game::stats[27]++;
+
                 if(_Graphox_autonp == 1)
             	{
             		defformatstring(message)(np_string, aname);
@@ -730,8 +732,6 @@ namespace game
             		conoutf(CON_CHAT, "\f4| %s", message);
                     addmsg(N_TEXT, "rcs", player1, message);
                 }
-
-                stats[27];
 
                 ffrag2 = 1;
                 when2 = totalmillis;

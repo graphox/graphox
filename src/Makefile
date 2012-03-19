@@ -95,6 +95,7 @@ CLIENT_OBJS= \
 	fpsgame/render.o \
 	fpsgame/scoreboard.o \
 	fpsgame/server.o \
+	fpsgame/stats.o \
 	fpsgame/waypoint.o \
 	fpsgame/weapon.o
 ifneq (,$(findstring MINGW,$(PLATFORM)))
@@ -426,6 +427,7 @@ fpsgame/server.o: fpsgame/game.h shared/cube.h shared/tools.h shared/geom.h
 fpsgame/server.o: shared/ents.h shared/command.h shared/iengine.h
 fpsgame/server.o: shared/igame.h fpsgame/ai.h fpsgame/capture.h fpsgame/ctf.h
 fpsgame/server.o: fpsgame/extinfo.h fpsgame/aiman.h
+fpsgame/stats.o: fpsgame/stats.cpp
 fpsgame/waypoint.o: fpsgame/game.h shared/cube.h shared/tools.h shared/geom.h
 fpsgame/waypoint.o: shared/ents.h shared/command.h shared/iengine.h
 fpsgame/waypoint.o: shared/igame.h fpsgame/ai.h

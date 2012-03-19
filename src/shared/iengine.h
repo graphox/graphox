@@ -222,19 +222,14 @@ enum
     PART_STREAK, PART_LIGHTNING,
     PART_EXPLOSION, PART_EXPLOSION_BLUE,
     PART_SPARK, PART_EDIT,
-    PART_MUZZLE_FLASH1, PART_MUZZLE_FLASH2, PART_MUZZLE_FLASH3, PART_MUZZLE_FLASH4,
+    PART_MUZZLE_FLASH1, PART_MUZZLE_FLASH2, PART_MUZZLE_FLASH3,
     PART_HUD_ICON,
     PART_HUD_ICON_GREY,
     PART_TEXT,
     PART_METER, PART_METER_VS,
-    PART_LENS_FLARE,
-    PART_FLAME1, PART_FLAME2, PART_FLAME3, PART_FLAME4,
-    PART_BULLET,
-    PART_SMOKETRAIL
+    PART_LENS_FLARE
 };
 
-extern void particle_explodesplash(const vec &o, int fade, int type, int color = 0xFFFFFF, float size = 1, int gravity = -20, int num = 16);
-extern void particle_flying_flare(const vec &o, const vec &d, int fade, int type, int color, float size, int gravity = 0);
 extern bool canaddparticles();
 extern void regular_particle_splash(int type, int num, int fade, const vec &p, int color = 0xFFFFFF, float size = 1.0f, int radius = 150, int gravity = 2, int delay = 0);
 extern void regular_particle_flame(int type, const vec &p, float radius, float height, int color, int density = 3, float scale = 2.0f, float speed = 200.0f, float fade = 600.0f, int gravity = -15);
