@@ -1,25 +1,10 @@
 CXXFLAGS= -O3 -fomit-frame-pointer
 override CXXFLAGS+= -Wall -fsigned-char -D_ENABLE_JOYSTIC_=1
 
-# beta ds:
-#ifeq ($(strip $(DEVKITARM)),)
-#$(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
-#endif
-
-#GAME_TITLE := "Graphox"
-#GAME_SUBTITLE1	:=	"based on cube2 now for ds"
-#GAME_SUBTITLE2	:=	"ds verson by killme_nl"
-#GAME_ICON := vcpp/cube2.ico
-
-#include $(DEVKITARM)/ds_rules
-
-#CXXFLAFS += -march=armv5te -mtune=arm946e-s -fno-rtti -fno-exceptions -D_DS_ -MMD -MP -MF --with-denoise-level=0
-#/end of beta ds
-
 PLATFORM= $(shell uname -s)
 PLATFORM_PREFIX= native
 
-INCLUDES= -Ishared -Iengine -Ifpsgame -Ienet/include -Ibullet-2.79/src -Ibullet-2.79/bullet-build/src/BulletDynamics
+INCLUDES= -Ishared -Iengine -Ifpsgame -Ienet/include# -Ibullet-2.79/src -Ibullet-2.79/bullet-build/src/BulletDynamics
 
 STRIP=
 ifeq (,$(findstring -g,$(CXXFLAGS)))
@@ -35,8 +20,8 @@ WINDRES= windres
 CLIENT_INCLUDES= $(INCLUDES) -Iinclude
 CLIENT_LIBS= -mwindows -Llib -lSDL -lSDL_image -lSDL_mixer -lzdll -lopengl32 -lenet -lws2_32 -lwinmm
 else	
-CLIENT_INCLUDES= $(INCLUDES) -I/usr/X11R6/include `sdl-config --cflags` -Ibullet-2.79/src
-CLIENT_LIBS= -Lenet/.libs -lenet -L/usr/X11R6/lib `sdl-config --libs` -lSDL_image -lSDL_mixer -lz -lGL -lGLU -Lbullet-2.79/bullet-build/src/BulletDynamics/libBulletDynamics.a
+CLIENT_INCLUDES= $(INCLUDES) -I/usr/X11R6/include `sdl-config --cflags`# -Ibullet-2.79/src
+CLIENT_LIBS= -Lenet/.libs -lenet -L/usr/X11R6/lib `sdl-config --libs` -lSDL_image -lSDL_mixer -lz -lGL -lGLU# -Lbullet-2.79/bullet-build/src/BulletDynamics/libBulletDynamics.a
 endif
 ifeq ($(PLATFORM),Linux)
 CLIENT_LIBS+= -lrt
@@ -197,10 +182,10 @@ endif
 endif 
 
 depend:
-	makedepend -Y -Ishared -Iengine -Ifpsgame -Ibullet-2.79/src $(subst .o,.cpp,$(CLIENT_OBJS))
-	makedepend -a -o.h.gch -Y -Ishared -Iengine -Ifpsgame -Ibullet-2.79/src $(subst .h.gch,.h,$(CLIENT_PCH))
-	makedepend -a -o-standalone.o -Y -Ishared -Iengine -Ifpsgame -Ibullet-2.79/src  $(subst -standalone.o,.cpp,$(SERVER_OBJS))
-	makedepend -a -o-standalone.o -Y -Ishared -Iengine -Ifpsgame -Ibullet-2.79/src $(subst -standalone.o,.cpp,$(filter-out $(SERVER_OBJS), $(MASTER_OBJS)))
+	makedepend -Y -Ishared -Iengine -Ifpsgame $(subst .o,.cpp,$(CLIENT_OBJS)) # -Ibullet-2.79/src
+	makedepend -a -o.h.gch -Y -Ishared -Iengine -Ifpsgame $(subst .h.gch,.h,$(CLIENT_PCH)) # -Ibullet-2.79/src
+	makedepend -a -o-standalone.o -Y -Ishared -Iengine -Ifpsgame $(subst -standalone.o,.cpp,$(SERVER_OBJS)) # -Ibullet-2.79/src
+	makedepend -a -o-standalone.o -Y -Ishared -Iengine -Ifpsgame $(subst -standalone.o,.cpp,$(filter-out $(SERVER_OBJS), $(MASTER_OBJS))) #-Ibullet-2.79/src 
 
 # DO NOT DELETE
 
