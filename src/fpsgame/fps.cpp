@@ -1453,17 +1453,17 @@ namespace game
 		//"sortbyport" = 7
 		//"sortbydescription" = 8
 
-		int sortbythat = 0;
-		// static int actions[] = { 1, 2, 3, 4, 5, 6, 7, 8 }; // unused
+		static int actions[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 		static const int struts[] =  { 0,       0,          12,     12,      8,         13,      6,       24 };
 		if(size_t(i) >= sizeof(names)/sizeof(names[0])) return false;
 		g->pushlist();
-		       if(g->button(names[i], 0xFFFFDD)&G3D_UP)
+		       if(g->button(names[i], 0xFFFF80)&G3D_UP)
 			   {
 
 				   sortbythat = i+1;
 
 			   }
+        g->separator();
 		//g->button(names[i], 0xFFFF80, "sortlikeme"/*!i ? " " : NULL*/); //a_teammate 26.02.2011
 		if(struts[i]) g->strut(struts[i]);
 		g->mergehits(true);
