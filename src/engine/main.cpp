@@ -1644,6 +1644,8 @@ int main(int argc, char **argv)
     ASSERT(dedicated <= 1);
     game::initclient();
     readstats();
+    
+    graphox::init();
 
     log("video: mode");
     const SDL_VideoInfo *video = SDL_GetVideoInfo();

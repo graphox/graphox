@@ -123,3 +123,7 @@ namespace server
     extern bool ispaused();
 }
 
+namespace graphox
+{
+	extern void init();
+}

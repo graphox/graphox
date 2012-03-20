@@ -151,7 +151,9 @@ void addpackagedir(const char *dir)
 
 const char *findfile(const char *filename, const char *mode)
 {
+	//reordened
     static string s;
+  
     if(homedir[0])
     {
         formatstring(s)("%s%s", homedir, filename);
@@ -171,12 +173,21 @@ const char *findfile(const char *filename, const char *mode)
             return s;
         }
     }
-    if(mode[0]=='w' || mode[0]=='a') return filename;
+
     loopv(packagedirs)
     {
-        formatstring(s)("%s%s", packagedirs[i], filename);
+    	formatstring(s)("%s%s", packagedirs[i], filename);
         if(fileexists(s, mode)) return s;
     }
+
+    loopv(packagedirs)
+    {
+    	formatstring(s)("%s%s%s",homedir, packagedirs[i], filename);
+        if(fileexists(s, mode)) return s;
+    }
+        
+    if(mode[0]=='w' || mode[0]=='a') return filename;
+    
     return filename;
 }
 

@@ -149,6 +149,8 @@ add_executable(graphox_client
 	shared/stream.cpp
 	shared/tools.cpp
 	shared/zip.cpp
+	
+	graphox/init.cpp
 )
 
 target_link_libraries(graphox_client
