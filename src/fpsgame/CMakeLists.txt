@@ -1,42 +1,26 @@
-set(CUBE2_GAME cube2_game CACHE INTERNAL "cube2_game target")
-
 set(CUBE2_CLIENT_SOURCES
-	game.h
-	ai.h
-	game.h
-	capture.h
-	ctf.h
-	help.cpp
+	fpsgame/game.h
+	fpsgame/ai.h
+	fpsgame/game.h
+	fpsgame/capture.h
+	fpsgame/ctf.h
+	fpsgame/help.cpp
+	fpsgame/
+	fpsgame/ai.cpp
+	fpsgame/client.cpp
+	fpsgame/entities.cpp
+	fpsgame/fps.cpp
+	fpsgame/help.cpp
+	fpsgame/monster.cpp
+	fpsgame/movable.cpp
+	fpsgame/pch.cpp
+	fpsgame/render.cpp
+	fpsgame/scoreboard.cpp
+	fpsgame/server.cpp
+	fpsgame/stats.cpp
+	fpsgame/waypoint.cpp
+	fpsgame/weapon.cpp
 	
-	ai.cpp
-	client.cpp
-	entities.cpp
-	fps.cpp
-	help.cpp
-	monster.cpp
-	movable.cpp
-	pch.cpp
-	render.cpp
-	scoreboard.cpp
-	server.cpp
-	stats.cpp
-	waypoint.cpp
-	weapon.cpp
+	CACHE INTERNAL "cube2 sources"
 )
 
-add_executable(${CUBE2_GAME} ${CUBE2_CLIENT_SOURCES})
-
-target_link_libraries(${CUBE2_GAME}
-	-lz
-	${CUBE2_TOOLS}
-	${CUBE2_ENGINE}
-	${ENET_LIBRARY}
-)
-
-
-
-install(TARGETS 
-        ${CUBE2_GAME}      
-    RUNTIME DESTINATION ${INSTALL_RUNTIME_DIR} 
-    LIBRARY DESTINATION ${INSTALL_LIBRARY_DIR} 
-    ARCHIVE DESTINATION ${INSTALL_ARCHIVE_DIR})
