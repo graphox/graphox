@@ -1218,27 +1218,9 @@ namespace game
                 if(d->state!=CS_DEAD && d->state!=CS_SPECTATOR)
                     particle_textcopy(d->abovehead(), text, PART_TEXT, 2000, 0x32FF64, 4.0f, -8);
 
-                if(strstr(text, "lol") ||
-                  strstr(text, "Lol") ||
-                  strstr(text, "LoL") ||
-                  strstr(text, "LOL") ||
-                  strstr(text, "LOl") ||
-                  strstr(text, "lOl") ||
-                  strstr(text, "lOL") ||
-                  strstr(text, "loL") ||
-                  strstr(text, "l0l") ||
-                  strstr(text, "L0l") ||
-                  strstr(text, "L0L") ||
-                  strstr(text, "L0L") ||
-                  strstr(text, "L0l") ||
-                  strstr(text, "l0l") ||
-                  strstr(text, "l0L") ||
-                  strstr(text, "l0L")) game::stats[12]++;
-
                 if (strstr(text, player1->name) && _Graphox_allow_highlight == 1) {
-                    defformatstring(name)("\f6%s\f3", player1->name);
 
-                    conoutf(CON_CHAT, "%s:\f3 %s", colorname(d), strreplace(text, player1->name, name));
+                    conoutf(CON_CHAT, "%s:\f3 %s", colorname(d), text);
 
                     playsound(S_PAINS, &d->o);
 
@@ -1260,27 +1242,10 @@ namespace game
                 if(t->state!=CS_DEAD && t->state!=CS_SPECTATOR)
                     particle_textcopy(t->abovehead(), text, PART_TEXT, 2000, 0x6496FF, 4.0f, -8);
 
-                if(strstr(text, "lol") ||
-                  strstr(text, "Lol") ||
-                  strstr(text, "LoL") ||
-                  strstr(text, "LOL") ||
-                  strstr(text, "LOl") ||
-                  strstr(text, "lOl") ||
-                  strstr(text, "lOL") ||
-                  strstr(text, "loL") ||
-                  strstr(text, "l0l") ||
-                  strstr(text, "L0l") ||
-                  strstr(text, "L0L") ||
-                  strstr(text, "L0L") ||
-                  strstr(text, "L0l") ||
-                  strstr(text, "l0l") ||
-                  strstr(text, "l0L") ||
-                  strstr(text, "l0L")) game::stats[12]++;
-
                 if (strstr(text, player1->name) && _Graphox_allow_highlight == 1) {
                     defformatstring(name)("\f6%s\f3", player1->name);
 
-                    conoutf(CON_CHAT, "%s:\f3 %s", colorname(d), strreplace(text, player1->name, name));
+                    conoutf(CON_CHAT, "%s:\f3 %s", colorname(d), text);
 
                     playsound(S_PAINS, &d->o);
 

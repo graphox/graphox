@@ -975,14 +975,16 @@ namespace game
 
     void newhud(int w, int h)
     {
-        if(player1->state==CS_DEAD || player1->state==CS_SPECTATOR) return;
+        fpsent *f = followingplayer();
+
+        if(player1->state==CS_DEAD || (player1->state==CS_SPECTATOR && !followingplayer())) return;
         glPushMatrix();
         glScalef(1/1.2f, 1/1.2f, 1);
-        if(!m_insta) draw_textf("%d", 80, h*1.2f-128, player1->state==CS_DEAD ? 0 : player1->health);
-        defformatstring(ammo)("%d", player1->ammo[player1->gunselect]);
+        if(!m_insta) draw_textf("%d", 80, h*1.2f-128, player1->state==CS_DEAD ? 0 : player1->state==CS_SPECTATOR ? f->health : player1->health);
+        defformatstring(ammo)("%d", player1->state==CS_SPECTATOR ? f->ammo[f->gunselect] : player1->ammo[player1->gunselect]);
         int wb, hb;
         text_bounds(ammo, wb, hb);
-        draw_textf("%d", w*1.2f-wb-80, h*1.2f-128, player1->ammo[player1->gunselect]);
+        draw_textf("%d", w*1.2f-wb-80, h*1.2f-128, player1->state==CS_SPECTATOR ? f->ammo[f->gunselect] : player1->ammo[player1->gunselect]);
 
         if(player1->quadmillis)
         {
@@ -1156,8 +1158,8 @@ namespace game
             fpsent *f = followingplayer();
             text_bounds(f ? colorname(f) : " ", fw, fh);
             fh = max(fh, ph);
-            draw_text("SPECTATOR", w*1800/h - tw - pw, 1650 - th - fh);
-            if(f) draw_text(colorname(f), w*1800/h - fw - pw, 1650 - fh);
+            draw_text("SPECTATOR", w*1000/h - tw - pw, 1800 - th - fh);
+            if(f) draw_text(colorname(f), w*1000/h - fw - pw, 1800 - fh);
         }
 
         fpsent *d = hudplayer();

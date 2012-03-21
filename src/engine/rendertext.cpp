@@ -31,7 +31,7 @@ void newfont(char *name, char *tex, int *defaultw, int *defaulth, int *offsetx, 
 void fontoffset(char *c)
 {
     if(!fontdef) return;
-    
+
     fontdef->charoffset = c[0];
 }
 
@@ -112,7 +112,7 @@ void tabify(const char *str, int *numtabs)
 }
 
 COMMAND(tabify, "si");
-    
+
 void draw_textf(const char *fstr, int left, int top, ...)
 {
     defvformatstring(str, top, fstr);
@@ -136,10 +136,10 @@ static int draw_char(int c, int x, int y)
 }
 
 //stack[sp] is current color index
-static void text_color(char c, char *stack, int size, int &sp, bvec color, int a) 
+static void text_color(char c, char *stack, int size, int &sp, bvec color, int a)
 {
     if(c=='s') // save color
-    {   
+    {
         c = stack[sp];
         if(sp<size-1) stack[++sp] = c;
     }
@@ -152,19 +152,16 @@ static void text_color(char c, char *stack, int size, int &sp, bvec color, int a
         {
             case '0': color = bvec( 64, 255, 128); break;   // green: player talk
             case '1': color = bvec( 96, 160, 255); break;   // blue: "echo" command
-            case '2': color = bvec(255, 192,  64); break;   // yellow: gameplay messages 
+            case '2': color = bvec(255, 192,  64); break;   // yellow: gameplay messages
             case '3': color = bvec(255,  64,  64); break;   // red: important errors
             case '4': color = bvec(128, 128, 128); break;   // gray
             case '5': color = bvec(192,  64, 192); break;   // magenta
             case '6': color = bvec(255, 128,   0); break;   // orange
             case '7': color = bvec(255, 255, 255); break;   // white
-            #ifdef _GRAPHOX_
             case '8': color = bvec(0, 0, 0); break;   // black
-            #endif
-            // provided color: everything else
         }
         glColor4ub(color.x, color.y, color.z, a);
-    } 
+    }
 }
 
 #define TEXTSKELETON \
@@ -231,7 +228,7 @@ int text_visible(const char *str, int hitx, int hity, int maxwidth)
 }
 
 //inverse of text_visible
-void text_pos(const char *str, int cursor, int &cx, int &cy, int maxwidth) 
+void text_pos(const char *str, int cursor, int &cx, int &cy, int maxwidth)
 {
     #define TEXTINDEX(idx) if(idx == cursor) { cx = x; cy = y; break; }
     #define TEXTWHITE(idx)
@@ -271,11 +268,11 @@ void text_bounds(const char *str, int &width, int &height, int maxwidth)
     #undef TEXTWORD
 }
 
-void draw_text(const char *str, int left, int top, int r, int g, int b, int a, int cursor, int maxwidth) 
+void draw_text(const char *str, int left, int top, int r, int g, int b, int a, int cursor, int maxwidth)
 {
     #define TEXTINDEX(idx) if(idx == cursor) { cx = x; cy = y; }
     #define TEXTWHITE(idx)
-    #define TEXTLINE(idx) 
+    #define TEXTLINE(idx)
     #define TEXTCOLOR(idx) text_color(str[idx], colorstack, sizeof(colorstack), colorpos, color, a);
     #define TEXTCHAR(idx) x += draw_char(c, left+x, top+y)+1;
     #define TEXTWORD TEXTWORDSKELETON

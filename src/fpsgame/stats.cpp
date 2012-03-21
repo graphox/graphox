@@ -7,7 +7,7 @@ ICOMMAND(wut, "", (), conoutf(game::savedconfig()));
 
 namespace game
 {
-    int stats[27];
+    int stats[28];
 
 /**
 STATS LIST

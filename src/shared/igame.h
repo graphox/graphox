@@ -88,7 +88,7 @@ namespace game
     extern bool serverinfoentry(g3d_gui *g, int i, const char *name, int port, const char *desc, const char *map, int ping, const vector<int> &attr, int np);
     extern bool needminimap();
 
-    extern int stats[27];
+    extern int stats[28];
     extern void statsacc();
     extern void readstats();
     extern void writestats();
