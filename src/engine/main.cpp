@@ -1,5 +1,5 @@
 // main.cpp: initialisation & main loop
-
+#include "graphox/graphox.h"
 #include "engine.h"
 
 VARP(defaultload, 0, 0, 1);
@@ -1749,6 +1749,7 @@ int main(int argc, char **argv)
     initjoystick();
    	#endif
 
+	graphox::init_done();
     resetfpshistory();
 
     inputgrab(grabinput = true);
@@ -1787,6 +1788,8 @@ int main(int argc, char **argv)
         game::dotime();
 
         serverslice(false, 0);
+
+		graphox::main(totalmillis);
 
         if(frames) updatefpshistory(elapsed);
         frames++;

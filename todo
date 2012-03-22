@@ -8,4 +8,4 @@
 	    - /_Graphox_news
 - fix server sorting (how'd that break ??)
 - start offline chat
-- start server mod (linked, anti-spam, commands, geoip, inter-chat (admins only), inter-msg (all, only if registered with friends) server status (#servstats <ip>; online (how long), offline (how long)))
+- start server mod (linked, anti-spam, commands, geoip, inter-chat (admins only), inter-msg (all, only if registered with friends) server status (#servstats <ip>; online (how long), offline (how long))) -> alphaserv v4

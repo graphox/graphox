@@ -6,6 +6,15 @@ include_directories(
 	fpsgame
 	shared
 	include
+	#third_party
+	#third_party/javascript/
+	
+	#TODO: autofind these packages
+	/usr/include
+	/usr/local/include
+	/usr/include/svncpp
+	/usr/include/subversion-1
+	/usr/include/apr-1.0
 )
 
 include(CheckLibraryExists)
@@ -22,9 +31,17 @@ if(NOT ${ZLIB_EXISTS})
     message(FATAL_ERROR "missing required library: ZLIB")
 endif(NOT ${ZLIB_EXISTS})
 
-add_definitions(-D_C2_DISABLE_UINTPTR_T_ -DSDL_VIDEO_DRIVER_X11)
+add_definitions(
+	-D_C2_DISABLE_UINTPTR_T_
+	-DSDL_VIDEO_DRIVER_X11 #TODO: make this unneeded
+	-DGRAPHOX_DISALE_SVN #don't forget to uncomment the cpp files	
+) #TODO: scan system
 
 add_subdirectory(enet)
+add_subdirectory(third_party)
+
+include_directories(${CMAKE_SOURCE_DIR}/src/third_party/v8/include)
+link_directories(${CMAKE_SOURCE_DIR}/src/third_party/v8)
 
 #due to sauer's bad design this is IMPOSSIBLE:
 #set(CUBE2_ENGINE cube2_engine CACHE INTERNAL "cube2_engine library")
@@ -149,8 +166,16 @@ add_executable(graphox_client
 	shared/stream.cpp
 	shared/tools.cpp
 	shared/zip.cpp
+
+	#third_party/javascript/script_engine_v8.cpp
+
+	graphox/init.cpp	
+	#graphox/svn.cpp
+	#graphox/repo.cpp
 	
-	graphox/init.cpp
+	#graphox/config.cpp
+	#graphox/logging.cpp
+
 )
 
 target_link_libraries(graphox_client
@@ -161,6 +186,8 @@ target_link_libraries(graphox_client
     ${OPENGL_LIBRARIES}
     ${ZLIB_LIBRARIES}
 	${ENET_LIBRARY}
+	svncpp
+	svn_client-1
 	-lrt  -lz
 )
 
