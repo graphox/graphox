@@ -82,8 +82,7 @@ CLIENT_OBJS= \
 	fpsgame/server.o \
 	fpsgame/stats.o \
 	fpsgame/waypoint.o \
-	fpsgame/weapon.o \
-	graphox/init.o
+	fpsgame/weapon.o
 ifneq (,$(findstring MINGW,$(PLATFORM)))
 CLIENT_OBJS+= vcpp/SDL_win32_main.o
 endif
@@ -460,5 +459,3 @@ fpsgame/server-standalone.o: fpsgame/extinfo.h fpsgame/aiman.h
 engine/master-standalone.o: shared/cube.h shared/tools.h shared/geom.h
 engine/master-standalone.o: shared/ents.h shared/command.h shared/iengine.h
 engine/master-standalone.o: shared/igame.h
-
-graphox/init.o: graphox/init.cpp
