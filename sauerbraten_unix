@@ -10,7 +10,7 @@ SAUER_BIN=${SAUER_DATA}/bin
 # SAUER_OPTIONS contains any command line options you would like to start Sauerbraten with.
 #SAUER_OPTIONS="-f"
 #SAUER_OPTIONS="-q${HOME}/.sauerbraten -r" # remove # for normal use
-SAUER_OPTIONS = "-f"
+SAUER_OPTIONS = "-f -r -qgraphox"
 
 if [ -x ${SAUER_BIN}/graphox_client ]
 then

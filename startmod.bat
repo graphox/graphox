@@ -1,1 +1,1 @@
-bin\sb.mod.exe -r %*
+bin\sb.mod.exe -r -qgraphox %*
