@@ -1,5 +1,4 @@
 // main.cpp: initialisation & main loop
-#include "graphox/graphox.h"
 #include "engine.h"
 
 VARP(defaultload, 0, 0, 1);
@@ -1613,8 +1612,6 @@ int main(int argc, char **argv)
     }
     initing = NOT_INITING;
 
-//    execfile("mod.cfg");//results in error
-
     if(dedicated <= 1)
     {
         log("sdl");
@@ -1645,8 +1642,6 @@ int main(int argc, char **argv)
     game::initclient();
     readstats();
     
-    graphox::init();
-
     log("video: mode");
     const SDL_VideoInfo *video = SDL_GetVideoInfo();
     if(video)
@@ -1788,8 +1783,6 @@ int main(int argc, char **argv)
         game::dotime();
 
         serverslice(false, 0);
-
-		graphox::main(totalmillis);
 
         if(frames) updatefpshistory(elapsed);
         frames++;
