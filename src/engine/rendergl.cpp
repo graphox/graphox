@@ -2036,6 +2036,41 @@ VARP(crosshairsize, 0, 15, 50);
 VARP(cursorsize, 0, 30, 50);
 VARP(crosshairfx, 0, 1, 1);
 
+int oldsize;
+int cmillis;
+bool dofx = false;
+
+void crosshairbump()
+{
+    if(oldsize == crosshairsize || !oldsize) oldsize = crosshairsize;
+    if(dofx)
+    {
+        dofx = false;
+        crosshairsize = oldsize;
+    }
+    dofx = true;
+}
+
+void crosshairbumpcheck()
+{
+    if(dofx && oldsize == crosshairsize)
+    {
+        crosshairsize += 20;
+        cmillis = lastmillis;
+    }
+    if(lastmillis >= (cmillis+10) && dofx)
+    {
+        crosshairsize -= 2;
+        cmillis = lastmillis;
+    }
+    if(dofx && crosshairsize <= oldsize)
+    {
+        crosshairsize = oldsize;
+        dofx = false;
+        oldsize = 0;
+    }
+}
+
 #define MAXCROSSHAIRS 4
 static Texture *crosshairs[MAXCROSSHAIRS] = { NULL, NULL, NULL, NULL };
 
@@ -2210,6 +2245,7 @@ void gl_drawhud(int w, int h)
     {
         drawdamagescreen(w, h);
         drawdamagecompass(w, h);
+        crosshairbumpcheck();
     }
 
     bool minimapon = false;
@@ -2224,9 +2260,10 @@ void gl_drawhud(int w, int h)
 
     if(mainmenu)
     {
+        int tw, th;
+
         glPushMatrix();
         glScalef(1/5.0f, 1/5.0f, 1);
-        int tw, th;
         defformatstring(full_graphox_version)("GraphOX V%s", graphox_version);
         text_bounds(full_graphox_version, tw, th);
         draw_textf(full_graphox_version, 0, h*5.0f-th);

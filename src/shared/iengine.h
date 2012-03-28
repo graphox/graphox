@@ -317,6 +317,9 @@ extern model *loadmodel(const char *name, int i = -1, bool msg = false);
 extern void preloadmodel(const char *name);
 extern void flushpreloadedmodels();
 
+//croshair
+extern void crosshairbump();
+
 // ragdoll
 
 extern void moveragdoll(dynent *d);

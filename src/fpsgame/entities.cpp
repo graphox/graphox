@@ -138,7 +138,7 @@ namespace entities
         d->pickup(type);
         if(d==player1)
         {
-            //crosshairbump();
+            crosshairbump();
             switch(type)
             {
                 case I_BOOST:
