@@ -1221,12 +1221,7 @@ namespace game
                 if(isignored(d->clientnum)) break;
                 if(d->state!=CS_DEAD && d->state!=CS_SPECTATOR)
                     particle_textcopy(d->abovehead(), text, PART_TEXT, 2000, 0x32FF64, 4.0f, -8);
-
-<<<<<<< .mine
                 conoutf(CON_CHAT, "%s: %s%s", colorname(d), strstr(text, player1->name) && _Graphox_allow_highlight == 1 ? "\f3" : "\f0", text);
-=======
-		conoutf(CON_CHAT, "%s: %s%s", d->name, strstr(text, player1->name) && _Graphox_allow_highlight == 1 ? "\f3" : "\f0" , text);
->>>>>>> .r39
 
                 break;
             }
@@ -1240,17 +1235,7 @@ namespace game
                 if(!t || isignored(t->clientnum)) break;
                 if(t->state!=CS_DEAD && t->state!=CS_SPECTATOR)
                     particle_textcopy(t->abovehead(), text, PART_TEXT, 2000, 0x6496FF, 4.0f, -8);
-
-<<<<<<< .mine
-=======
-                conoutf(CON_CHAT, "%s:\f1 %s", colorname(d), text);
->>>>>>> .r39
-
-<<<<<<< .mine
                 conoutf(CON_CHAT, "%s%s: %s%s", strstr(text, player1->name) && _Graphox_allow_highlight == 1 ? "\f1" : "\f7", colorname(d), strstr(text, player1->name) && _Graphox_allow_highlight == 1 ? "\f3" : "\f0", text);
-
-=======
->>>>>>> .r39
                 break;
             }
 
