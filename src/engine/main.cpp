@@ -1,4 +1,5 @@
 // main.cpp: initialisation & main loop
+
 #include "engine.h"
 
 VARP(defaultload, 0, 0, 1);
@@ -15,6 +16,8 @@ bool joystick_inited = false;
 SDL_Joystick *joystick;
 #endif
 
+string graphox_version = "2";
+ICOMMAND(getgraphoxversion, "", (), result(graphox_version));
 
 void cleanup()
 {
@@ -1612,6 +1615,8 @@ int main(int argc, char **argv)
     }
     initing = NOT_INITING;
 
+//    execfile("mod.cfg");//results in error
+
     if(dedicated <= 1)
     {
         log("sdl");
@@ -1641,7 +1646,7 @@ int main(int argc, char **argv)
     ASSERT(dedicated <= 1);
     game::initclient();
     readstats();
-    
+
     log("video: mode");
     const SDL_VideoInfo *video = SDL_GetVideoInfo();
     if(video)
@@ -1744,7 +1749,6 @@ int main(int argc, char **argv)
     initjoystick();
    	#endif
 
-	graphox::init_done();
     resetfpshistory();
 
     inputgrab(grabinput = true);

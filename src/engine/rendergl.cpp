@@ -2222,6 +2222,17 @@ void gl_drawhud(int w, int h)
     int conw = int(w/conscale), conh = int(h/conscale), abovehud = h*2.9 - FONTH, limitgui = h*3 - FONTH;
     int contw = int(w/conscale), conth = int(h/conscale), abovehud2 = conth - FONTH, limitgui2 = abovehud2;
 
+    if(mainmenu)
+    {
+        glPushMatrix();
+        glScalef(1/5.0f, 1/5.0f, 1);
+        int tw, th;
+        defformatstring(full_graphox_version)("GraphOX V%s", graphox_version);
+        text_bounds(full_graphox_version, tw, th);
+        draw_textf(full_graphox_version, 0, h*5.0f-th);
+        glPopMatrix();
+    }
+
     if(!hidehud && !mainmenu)
     {
         if(game::hudtheme == 0)

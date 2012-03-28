@@ -61,8 +61,8 @@ enum
 struct fpsentity : extentity
 {
     int triggerstate, lasttrigger;
-    
-    fpsentity() : triggerstate(TRIGGER_RESET), lasttrigger(0) {} 
+
+    fpsentity() : triggerstate(TRIGGER_RESET), lasttrigger(0) {}
 };
 
 enum { GUN_FIST = 0, GUN_SG, GUN_CG, GUN_RL, GUN_RIFLE, GUN_GL, GUN_PISTOL, GUN_FIREBALL, GUN_ICEBALL, GUN_SLIMEBALL, GUN_BITE, GUN_BARREL, NUMGUNS };
@@ -666,9 +666,9 @@ namespace game
     extern string clientmap;
     extern bool intermission;
     extern int maptime, maprealtime, maplimit;
-    
+
     extern vector<local_player *> local_players;
-        
+
     extern fpsent *player1;
     extern vector<fpsent *> players, clients;
     extern int lastspawnattempt;

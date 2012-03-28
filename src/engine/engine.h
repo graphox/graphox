@@ -452,6 +452,8 @@ enum
 };
 extern int initing;
 
+extern string graphox_version;
+
 enum
 {
     CHANGE_GFX   = 1<<0,

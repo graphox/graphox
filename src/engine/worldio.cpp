@@ -42,14 +42,6 @@ void getmapfilenames(const char *fname, const char *cname, char *pakname, char *
     cutogz(mapname);
 }
 
-bool write_protected()
-{
-	string fname;
-	formatstring(fname)("%s.lock", ogzname);
-	puts(fname);
-	return fileexists(findfile(fname, "r"), "r");
-}
-
 void setmapfilenames(const char *fname, const char *cname = 0)
 {
     string pakname, mapname, mcfgname;
@@ -429,15 +421,7 @@ void loadvslots(stream *f, int numvslots)
 bool save_world(const char *mname, bool nolms)
 {
     if(!*mname) mname = game::getclientmap();
-    
     setmapfilenames(*mname ? mname : "untitled");
-    
-    if(write_protected())
-    {
-		conoutf(CON_WARN, "\f3could not write map to \fs\f2%s\fr, \fs\f2Write Protected\fr, please choose an other name and try again.", ogzname);
-		return false;
-    }
-    
     if(savebak) backup(ogzname, bakname);
     stream *f = opengzfile(ogzname, "wb");
     if(!f) { conoutf(CON_WARN, "could not write map to %s", ogzname); return false; }

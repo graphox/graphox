@@ -1,5 +1,6 @@
 #include "game.h"
 #include "engine.h"
+#include "cube.h"
 
 int lasttimeupdate = 0;
 
@@ -7,7 +8,7 @@ ICOMMAND(wut, "", (), conoutf(game::savedconfig()));
 
 namespace game
 {
-    int stats[28];
+    int stats[33];
 
 /**
 STATS LIST
@@ -38,6 +39,18 @@ Total play time:
 21: hours
 22: days
 23: weeks
+
+GraphOX:
+
+25: theme changed
+26: teamkills mades
+27: teamkills recieved
+28: aborted connection
+29: unresolved server
+30: connection to server
+31: LAN connect
+32: could not connect
+
 **/
 
     void writestats()

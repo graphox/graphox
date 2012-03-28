@@ -33,6 +33,198 @@ namespace game
     ICOMMAND(_Graphox_np, "s", (char *s), switch_np(s));
     ICOMMAND(_Graphox_get_np, "", (), result(np_string));
 
+	enum { SETTING_TYPE_UNKNOWN, SETTING_TYPE_TEXT, SETTING_TYPE_INT, SETTING_TYPE_FLOAT };
+	struct player_setting
+	{
+		const char *name;
+		const char *s_value;
+		int i_value;
+		float f_value;
+
+		int type;
+
+		player_setting(const char *name_) : name(name_), type(SETTING_TYPE_UNKNOWN) {};
+		player_setting(const char *name_, const char *value_) : name(name_), s_value(value_), type(SETTING_TYPE_TEXT) {};
+		player_setting(const char *name_, int value_) : name(name_), i_value(value_), type(SETTING_TYPE_INT) {};
+		player_setting(const char *name_, float value_) : name(name_), f_value(value_), type(SETTING_TYPE_FLOAT) {};
+	};
+	struct local_player : fpsent
+	{
+		int following, followdir;
+		int lasthit;
+		bool thirdperson;
+		vector<player_setting> settings;
+
+		void init() //use init instead of constructor. will might overwrite the fpsent constructor otherwise
+		{
+			following = -1;
+			following = 0;
+			lasthit = 0;
+			thirdperson = false;
+		}
+
+		void taunt()
+		{
+			if(this->state!=CS_ALIVE || this->physstate<PHYS_SLOPE) return;
+			if(lastmillis-this->lasttaunt<1000) return;
+
+			this->lasttaunt = lastmillis;
+			addmsg(N_TAUNT, "rc", player1);
+		};
+
+		void follow(char *arg)
+		{
+			if(arg[0] ? this->state==CS_SPECTATOR : this->following>=0)
+			{
+				following = arg[0] ? parseplayer(arg) : -1;
+            	if(following==this->clientnum) following = -1;
+            	followdir = 0;
+				conoutf("follow %s", following>=0 ? "on" : "off");
+			};
+		};
+
+		void nextfollow(int dir)
+		{
+			if(this->state!=CS_SPECTATOR || clients.empty())
+			{
+				this->stopfollowing();
+				return;
+			};
+
+			int cur = following >= 0 ? following : (dir < 0 ? clients.length() - 1 : 0);
+
+			loopv(clients)
+			{
+				cur = (cur + dir + clients.length()) % clients.length();
+
+				if(clients[cur] && clients[cur]->state!=CS_SPECTATOR)
+				{
+					if(following<0) conoutf("follow on");
+
+					following = cur;
+					followdir = dir;
+
+					return;
+				};
+			};
+
+			stopfollowing();
+    	};
+
+    	void stopfollowing()
+    	{
+    		if(following<0) return;
+
+    		following = -1;
+    		followdir = 0;
+			conoutf("follow off");
+		}
+
+		fpsent *followingplayer()
+		{
+			if(this->state!=CS_SPECTATOR || following<0) return NULL;
+
+			fpsent *target = getclient(following);
+
+			if(target && target->state!=CS_SPECTATOR) return target;
+
+			return NULL;
+		}
+
+		fpsent *hudplayer()
+		{
+			if(thirdperson) return this;
+
+			fpsent *target = followingplayer();
+
+			return target ? target : this;
+		};
+
+		void setupcamera()
+		{
+			fpsent *target = followingplayer();
+
+			if(target)
+			{
+				this->yaw = target->yaw;
+				this->pitch = target->state==CS_DEAD ? 0 : target->pitch;
+				this->o = target->o;
+				this->resetinterp();
+			}
+		};
+
+		bool detachcamera()
+		{
+			fpsent *d = hudplayer();
+			return d->state==CS_DEAD;
+		}
+
+		bool collidecamera()
+		{
+			switch(this->state)
+			{
+				case CS_EDITING: return false;
+				case CS_SPECTATOR: return followingplayer()!=NULL;
+			}
+
+			return true;
+		};
+
+		void respawnself()
+		{
+			if(paused || ispaused()) return;
+
+			if(m_mp(gamemode))
+			{
+				if(this->respawned!=this->lifesequence)
+				{
+					addmsg(N_TRYSPAWN, "rc", this);
+					this->respawned = this->lifesequence;
+				}
+			}
+			else
+			{
+				spawnplayer(this);
+				showscores(false);
+
+				lasthit = 0;
+
+				if(cmode) cmode->respawned(this);
+			}
+		};
+
+		void update()
+		{
+			if(this->state==CS_DEAD)
+			{
+				if(this->ragdoll) moveragdoll(this);
+				else if(lastmillis-this->lastpain<2000)
+				{
+					this->move = this->strafe = 0;
+					moveplayer(this, 10, true);
+				}
+			}
+			else if(!intermission)
+			{
+				if(this->ragdoll) cleanragdoll(this);
+
+				moveplayer(this, 10, true);
+				swayhudgun(curtime);
+
+				entities::checkitems(this);
+
+				if(m_sp)
+				{
+//					if(slowmosp) checkslowmo();
+					if(m_classicsp) entities::checktriggers();
+				}
+				else if(cmode) cmode->checkitems(this);
+			};
+		};
+	};
+
+	vector<local_player *> local_players; //our clients
+
     bool intermission = false;
     int maptime = 0, maprealtime = 0, maplimit = -1;
     int respawnent = -1;
@@ -455,6 +647,7 @@ namespace game
     int ffrag = 0;
     int when = 0;
     string who;
+    string whospec;
     int ffrag2 = 0;
     int when2 = 0;
     string who3;
@@ -465,6 +658,8 @@ namespace game
 
     void killed(fpsent *d, fpsent *actor)
     {
+        fpsent *f = followingplayer();
+
     	d->deaths++;
         if(d->state==CS_EDITING)
         {
@@ -561,6 +756,16 @@ namespace game
             else
             {
                 conoutf(contype, actor == player1 ? "\f0%s fragged %s" : "\f2%s fragged %s", aname, dname);
+
+                if(player1->state == CS_SPECTATOR) {
+                    if(aname == f->name) {
+                        ffrag = 1;
+                        when = totalmillis;
+                        copystring(who, dname);
+                        ismate2 = 0;
+                    }
+                }
+
                 if(actor==player1)
                 {
                     ffrag = 1;
@@ -568,16 +773,19 @@ namespace game
                     copystring(who, dname);
                     ismate2 = 0;
 
-                    if(d->ai) game::stats[6]++;
-                    if(!d->ai) game::stats[8]++;
-                    if(player1->gunselect == 0) game::stats[17]++;
-                    if(!strcmp(d->name, "unnamed")) game::stats[7]++;
+                    if(actor==player1)
+                    {
+                        if(d->ai) game::stats[6]++;
+                        if(!d->ai) game::stats[8]++;
+                        if(player1->gunselect == 0) game::stats[17]++;
+                        if(!strcmp(d->name, "unnamed")) game::stats[7]++;
+                    }
                 }
             }
         }
-        defformatstring(who4)("\f2you were fragged by %s%s", who3, ismate?"\f3, your teammate":"");
+        defformatstring(who4)("\f2you were fragged by %s%s", who3, ismate?", your \f3teammate":"");
         copystring(who5, who4);
-        defformatstring(who2)("you fragged %s%s", who, ismate2?"\f3, your teammate":"");
+        defformatstring(who2)("you fragged %s%s", who, ismate2?", your \f3teammate":"");
         copystring(who6, who2);
         deathstate(d);
 		ai::killed(d, actor);
