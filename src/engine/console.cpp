@@ -56,7 +56,7 @@ int rendercommand(int x, int y, int w)
 {
     if(commandmillis < 0) return 0;
 
-    defformatstring(s)("%s %s", commandprompt ? commandprompt : "\f6[cmd]\f7", commandbuf);
+    defformatstring(s)("%s %s", commandprompt ? commandprompt : ">", commandbuf);
     int width, height;
     text_bounds(s, width, height, w);
     y -= height;
