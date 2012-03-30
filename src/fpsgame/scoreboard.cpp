@@ -121,10 +121,12 @@ namespace game
     }
 
 	//Graphox mod
-	VARP(_Graphox_showfrags	,0,0,1);
-	VARP(_Graphox_showdeaths	,0,0,1);
-	VARP(_Graphox_showkpd	,0,0,1);
+	VARP(_Graphox_showfrags,0,0,1);
+	VARP(_Graphox_showdeaths,0,0,1);
+	VARP(_Graphox_showkpd,0,0,1);
 	VARP(_Graphox_showaccuracy,0,0,1);
+	VARP(_Graphox_showflags,0,0,1);
+	//End: Graphox mod
 
 
     void renderscoreboard(g3d_gui &g, bool firstpass)
@@ -216,7 +218,8 @@ namespace game
                 g.pushlist(); // horizontal
             }
 
-            if(!cmode || !cmode->hidefrags() || _Graphox_showfrags == 1) //added graphox var here
+            //added custom code - kille_nl (modified Monday, April 1 2012, 12:17 AM)
+            if(!cmode || !cmode->hidefrags() || _Graphox_showfrags == 1) //added graphox variable
             { 
                 g.pushlist();
                 g.strut(7);
@@ -225,8 +228,8 @@ namespace game
                 g.poplist();
             }
             
-            //added custom code
-			if(_Graphox_showdeaths == 1)
+			//Graphox mod
+			if(_Graphox_showdeaths == 1) //to show deaths
 			{
 				g.pushlist();
                 g.strut(7);
@@ -234,12 +237,12 @@ namespace game
                 loopscoregroup(o, g.textf("%d", 0xFFFFDD, NULL, o->deaths));
                 g.poplist();
 			}
-			if(_Graphox_showkpd == 1)
+
+			if(_Graphox_showkpd == 1) //to show kills per death
 			{
 				g.pushlist();
                 g.strut(7);
                 g.text("kpd", fgcolor);
-                //loopscoregroup(o, g.textf("%4.2f", 0xFFFFDD, NULL, o->frags / ));
 				loopv(sg.players)
 				{
 					float kpd =  float(sg.players[i]->frags) / max(sg.players[i]->deaths,1);
@@ -247,7 +250,8 @@ namespace game
 				}
                 g.poplist();
 			}
-			if(_Graphox_showaccuracy == 1)
+
+			if(_Graphox_showaccuracy == 1) //to show accuracy
 			{
 				g.pushlist();
                 g.strut(7);
@@ -256,6 +260,15 @@ namespace game
                 g.poplist();
 			}
 
+			if(_Graphox_showflags == 1) //to show flags
+			{
+				g.pushlist();
+                g.strut(7);
+                g.text("flags", fgcolor);
+                loopscoregroup(o, g.textf("%d", 0xFFFFDD, NULL, o->flags));
+                g.poplist();
+			}
+			//End: Graphox mod
 
             if(multiplayer(false) || demoplayback)
             {
