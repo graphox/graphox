@@ -757,17 +757,10 @@ namespace game
             {
                 conoutf(contype, actor == player1 ? "\f0%s fragged %s" : "\f2%s fragged %s", aname, dname);
 
-                if(player1->state == CS_SPECTATOR) {
-                    if(aname == f->name) {
-                        ffrag = 1;
-                        when = totalmillis;
-                        copystring(who, dname);
-                        ismate2 = 0;
-                    }
-                }
-
                 if(actor==player1)
                 {
+                    crosshairbump();
+
                     ffrag = 1;
                     when = totalmillis;
                     copystring(who, dname);
@@ -1016,6 +1009,9 @@ namespace game
 
     const char *colorname(fpsent *d, const char *name, const char *prefix)
     {
+		
+		if(!d) return;
+
         if(!name) name = d->name;
         if(name[0] && !duplicatename(d, name) && d->aitype == AI_NONE) return name;
         static string cname[3];
@@ -1023,7 +1019,7 @@ namespace game
         cidx = (cidx+1)%3;
         formatstring(cname[cidx])(d->aitype == AI_NONE ? "%s%s \fs\f5(%d)\fr" : "%s%s \fs\f5[%d]\fr", prefix, name, d->clientnum);
         return cname[cidx];
-    }
+	}
 
     void suicide(physent *d)
     {
@@ -1393,7 +1389,6 @@ namespace game
     {
         switch(index)
         {
-            case 2: return "data/hit.png";
             case 1: return "data/teammate.png";
             default: return "data/crosshair.png";
         }

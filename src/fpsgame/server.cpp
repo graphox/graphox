@@ -530,6 +530,8 @@ namespace server
 
     const char *colorname(clientinfo *ci, char *name = NULL)
     {
+		conoutf("%s", ci);
+
         if(!name) name = ci->name;
         if(name[0] && !duplicatename(ci, name) && ci->state.aitype == AI_NONE) return name;
         static string cname[3];

@@ -1230,6 +1230,10 @@ static void checkmousemotion(int &dx, int &dy)
     }
 }
 
+int current_x;
+int current_y;
+int lasthat;
+
 void checkinput()
 {
     SDL_Event event;
@@ -1286,50 +1290,6 @@ void checkinput()
                 lastbut = event.button.button;
                 break;
 			#ifdef _ENABLE_JOYSTIC_
-
-/*
-keymap 500 J_UP
-keymap 501 J_UP_RIGHT
-keymap 502 J_RIGHT
-keymap 503 J_DOWN_RIGHT
-keymap 504 J_DOWN
-keymap 505 J_LEFT
-keymap 506 J_DOWN_LEFT
-keymap 507 J_UP_LEFT
-
-keymap 510 J_TURN_LEFT
-keymap 511 J_TURN_RIGHT
-
-keymap 515 J_HAT_LEFT
-keymap 516 J_HAT_RIGHT
-keymap 517 J_HAT_UP_LEFT
-keymap 518 J_HAT_UP_RIGHT
-keymap 519 J_HAT_DOWN_LEFT
-keymap 520 J_HAT_DOWN_RIGHT
-keymap 521 J_HAT_UP
-keymap 522 J_HAT_DOWN
-
-keymap 530 J_BUTTON_1
-keymap 531 J_BUTTON_2
-keymap 532 J_BUTTON_3
-keymap 533 J_BUTTON_4
-keymap 534 J_BUTTON_5
-keymap 535 J_BUTTON_6
-keymap 536 J_BUTTON_7
-keymap 537 J_BUTTON_8
-keymap 538 J_BUTTON_9
-keymap 539 J_BUTTON_10
-keymap 540 J_BUTTON_11
-keymap 541 J_BUTTON_12
-keymap 542 J_BUTTON_13
-keymap 543 J_BUTTON_14
-keymap 544 J_BUTTON_15
-keymap 545 J_BUTTON_16
-keymap 546 J_BUTTON_17
-keymap 547 J_BUTTON_18
-keymap 548 J_BUTTON_19
-keymap 549 J_BUTTON_20
-*/
 
 			case SDL_JOYAXISMOTION:
 				#define J_SENS 150
@@ -1525,7 +1485,7 @@ VARFP(clockfix, 0, 0, 1, clockreset());
 #ifdef _ENABLE_JOYSTIC_
 void initjoystick()
 {
-	if(enable_joystick != 1 or joystick_inited == true)
+	if(enable_joystick != 1 || joystick_inited == true)
 		return;
 
 	printf("initiating joystick");

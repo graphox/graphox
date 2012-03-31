@@ -220,6 +220,8 @@ namespace entities
                 entinmap(d);
                 updatedynentcache(d);
                 ai::inferwaypoints(d, ents[n]->o, ents[e]->o, 16.f);
+                if(d == player1)
+                    crosshairbump();
                 break;
             }
         }

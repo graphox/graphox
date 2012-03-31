@@ -260,7 +260,7 @@ namespace game
                 g.poplist();
 			}
 
-			if(_Graphox_showflags == 1) //to show flags
+			if(_Graphox_showflags == 1 && strstr(server::modename(gamemode), "ctf")) //to show flags
 			{
 				g.pushlist();
                 g.strut(7);

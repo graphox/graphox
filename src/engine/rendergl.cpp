@@ -764,6 +764,7 @@ void transplayer()
 
 float curfov = 100, curavatarfov = 65, fovy, aspect;
 int farplane;
+
 VARP(zoominvel, 0, 250, 5000);
 VARP(zoomoutvel, 0, 100, 5000);
 VARP(zoomfov, 10, 35, 60);
@@ -2152,6 +2153,7 @@ void drawcrosshair(int w, int h)
             index = 0;
             r = g = b = 1;
         }
+        index = 0;
         crosshair = crosshairs[index];
         if(!crosshair)
         {
