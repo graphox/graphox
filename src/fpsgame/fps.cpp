@@ -810,9 +810,30 @@ namespace game
         }
     }
 
+    int getclientfrags(int cn)
+    {
+        fpsent *d = getclient(cn);
+        return d ? d->frags : -1;
+    }
+    ICOMMAND(getclientfrags, "i", (int *cn), intret(getclientfrags(*cn)));
     ICOMMAND(getfrags, "", (), intret(player1->frags));
+
+    int getclientflags(int cn)
+    {
+        fpsent *d = getclient(cn);
+        return d ? d->flags : -1;
+    }
+    ICOMMAND(getclientflags, "i", (int *cn), intret(getclientflags(*cn)));
     ICOMMAND(getflags, "", (), intret(player1->flags));
+
+    int getclientdeaths(int cn)
+    {
+        fpsent *d = getclient(cn);
+        return d ? d->deaths : -1;
+    }
+    ICOMMAND(getclientdeaths, "i", (int *cn), intret(getclientdeaths(*cn)));
     ICOMMAND(getdeaths, "", (), intret(player1->deaths));
+
     ICOMMAND(getaccuracy, "", (), intret((player1->totaldamage*100)/max(player1->totalshots, 1)));
     ICOMMAND(gettotaldamage, "", (), intret(player1->totaldamage));
     ICOMMAND(gettotalshots, "", (), intret(player1->totalshots));
@@ -1010,7 +1031,7 @@ namespace game
     const char *colorname(fpsent *d, const char *name, const char *prefix)
     {
 		
-		if(!d) return;
+		if(!d) return 0;
 
         if(!name) name = d->name;
         if(name[0] && !duplicatename(d, name) && d->aitype == AI_NONE) return name;
