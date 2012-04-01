@@ -141,7 +141,7 @@ void writeinitcfg()
     delete f;
 }
 
-ICOMMAND(quitgame, "", (), quit());
+COMMAND(quit, "");
 
 void getbackgroundres(int &w, int &h)
 {
