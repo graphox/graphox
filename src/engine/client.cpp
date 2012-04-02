@@ -78,8 +78,6 @@ void connectserv(const char *servername, int serverport, const char *serverpassw
     {
         conoutf("aborting connection attempt");
         abortconnect();
-
-        game::stats[28]++;
     }
 
     if(serverport <= 0) serverport = server::serverport();
@@ -96,7 +94,6 @@ void connectserv(const char *servername, int serverport, const char *serverpassw
         if(!resolverwait(servername, &address))
         {
             conoutf("\f3could not resolve server %s", servername);
-            game::stats[29]++;
             return;
         }
     }
@@ -106,7 +103,6 @@ void connectserv(const char *servername, int serverport, const char *serverpassw
         setvar("connectport", 0);
         conoutf("attempting to connect over LAN");
         address.host = ENET_HOST_BROADCAST;
-        game::stats[31]++;
     }
 
     if(!clienthost)
@@ -120,11 +116,9 @@ void connectserv(const char *servername, int serverport, const char *serverpassw
         connattempts = 0;
 
         game::connectattempt(servername ? servername : "", serverpassword ? serverpassword : "", address);
-        game::stats[30]++;
     }
     else {
         conoutf("\f3could not connect to server");
-        game::stats[32]++;
     }
 }
 
