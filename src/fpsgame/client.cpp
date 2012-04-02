@@ -1234,7 +1234,7 @@ namespace game
                 if(t->state!=CS_DEAD && t->state!=CS_SPECTATOR)
                     particle_textcopy(t->abovehead(), text, PART_TEXT, 2000, 0x6496FF, 4.0f, -8);
 
-                conoutf(CON_CHAT, "%s:%s %s", colorname(d), strstr(text, player1->name) && _Graphox_allow_highlight == 1 ? "\f1(team): \f3" : "\f1", text);
+                conoutf(CON_CHAT, "%s:%s %s", colorname(t), strstr(text, player1->name) && _Graphox_allow_highlight == 1 ? "\f1(team): \f3" : "\f1", text);
 
                 break;
             }

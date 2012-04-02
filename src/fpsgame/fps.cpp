@@ -1030,9 +1030,6 @@ namespace game
 
     const char *colorname(fpsent *d, const char *name, const char *prefix)
     {
-		
-		if(!d) return 0;
-
         if(!name) name = d->name;
         if(name[0] && !duplicatename(d, name) && d->aitype == AI_NONE) return name;
         static string cname[3];
