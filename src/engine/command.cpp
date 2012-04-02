@@ -1049,8 +1049,8 @@ ICOMMAND(listdel, "ss", (char *list, char *del), commandret = listdel(list, del)
 ICOMMAND(indexof, "ss", (char *list, char *elem), intret(listincludes(list, elem, strlen(elem))));
 ICOMMAND(listfind, "sss", (char *var, char *list, char *body), looplist(var, list, body, true));
 ICOMMAND(looplist, "sss", (char *var, char *list, char *body), looplist(var, list, body, false));
-ICOMMAND(loopfiles, "ssss", (char *var, char *dir, char *ext, char *body),
-{
+
+ICOMMAND(loopfiles, "ssss", (char *var, char *dir, char *ext, char *body), {
     ident *id = newident(var);
     if(id->type!=ID_ALIAS) return;
     vector<char *> files;
@@ -1067,6 +1067,28 @@ ICOMMAND(loopfiles, "ssss", (char *var, char *dir, char *ext, char *body),
     }
     if(files.length()) popident(*id);
 });
+
+void execdir(const char *dir)
+{
+    ident *id = newident("f");
+    if(id->type!=ID_ALIAS) return;
+    vector<char *> files;
+    listfiles(dir, "cfg", files);
+    loopv(files)
+    {
+        char *file = files[i];
+        bool redundant = false;
+        loopj(i) if(!strcmp(files[j], file)) { redundant = true; break; }
+        if(redundant) { delete[] file; continue; }
+        if(i) aliasa(id->name, file);
+        else pushident(*id, file);
+
+		defformatstring(files)("%s.cfg", file);
+
+        execfile(files, false);
+    }
+};
+ICOMMAND(execdir, "s", (char *dir), execdir(dir));
 
 ICOMMAND(+, "ii", (int *a, int *b), intret(*a + *b));
 ICOMMAND(*, "ii", (int *a, int *b), intret(*a * *b));
