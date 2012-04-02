@@ -61,7 +61,7 @@ GraphOX:
             conoutf("error creating stats file");
             return;
         }
-        loopi(33)
+        loopi(28)
         {
             f->printf("stats[%d] = %d\n", i, game::stats[i]);
         }
