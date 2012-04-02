@@ -1083,7 +1083,7 @@ void execdir(const char *dir)
         if(i) aliasa(id->name, file);
         else pushident(*id, file);
 
-		defformatstring(files)("%s.cfg", file);
+	defformatstring(files)("%s/%s.cfg", dir, file);
 
         execfile(files, false);
     }
