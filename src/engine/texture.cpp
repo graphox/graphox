@@ -998,6 +998,8 @@ Texture *textureload(const char *name, int clamp, bool mipit, bool msg)
 
 void themereload() {
 	g3d_themereload();
+
+	game::stats[25]++;
 }
 
 SVARP(p, "");
@@ -1014,11 +1016,10 @@ Texture *texload(const char* name, int clamp) {
 		if(theme == 2)
 			defformatstring(p)("data/themes/crash/%s", name);
 		t = textureload(p, clamp, true, false);
-
-        if(!fileexists(path(p),"")) {
-			formatstring(p)("data/themes/default/%s", name);
-			t =  textureload(p, clamp, true, false);
-		}
+			if(!fileexists(path(p),"")) {
+				formatstring(p)("data/themes/default/%s", name);
+				t =  textureload(p, clamp, true, false);
+			}
 	}
 	else
 	{

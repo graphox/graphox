@@ -11,7 +11,6 @@ namespace game
     VARP(showspectators, 0, 1, 1);
     VARP(highlightscore, 0, 1, 1);
     VARP(showconnecting, 0, 0, 1);
-    VARP(_Graphox_sortteams_, 0, 0, 1);
 
     static int playersort(const fpsent **a, const fpsent **b)
     {
@@ -23,21 +22,8 @@ namespace game
         else if((*b)->state==CS_SPECTATOR) return -1;
         if(m_ctf)
         {
-            if(_Graphox_sortteams_ == 0)
-            {
-                if((*a)->flags > (*b)->flags) return -1;
-                if((*a)->flags < (*b)->flags) return 1;
-            }
-            else if(_Graphox_sortteams_ == 1)
-            {
-                if((*a)->deaths > (*b)->deaths) return -1;
-                if((*a)->deaths < (*b)->deaths) return 1;
-            }
-            else if(_Graphox_sortteams_ == 2)
-            {
-                if(((*a)->frags && (*a)->deaths) > ((*b)->frags && (*b)->deaths)) return -1;
-                if(((*a)->frags && (*a)->deaths) < ((*b)->frags && (*b)->deaths)) return -1;
-            }
+            if((*a)->flags > (*b)->flags) return -1;
+            if((*a)->flags < (*b)->flags) return 1;
         }
         if((*a)->frags > (*b)->frags) return -1;
         if((*a)->frags < (*b)->frags) return 1;
@@ -135,10 +121,13 @@ namespace game
     }
 
 	//Graphox mod
-	VARP(_Graphox_showfrags    , 0, 0, 1);
-	VARP(_Graphox_showdeaths   , 0, 0, 1);
-	VARP(_Graphox_showkpd      , 0, 0, 1);
-	VARP(_Graphox_showaccuracy , 0, 0, 1);
+	VARP(_Graphox_showfrags,0,0,1);
+	VARP(_Graphox_showdeaths,0,0,1);
+	VARP(_Graphox_showkpd,0,0,1);
+	VARP(_Graphox_showaccuracy,0,0,1);
+	VARP(_Graphox_showflags,0,0,1);
+	//End: Graphox mod
+
 
     void renderscoreboard(g3d_gui &g, bool firstpass)
     {
@@ -152,7 +141,7 @@ namespace game
                 else g.titlef("%s:%d", 0xFFFF80, NULL, hostname, address->port);
             }
         }
-
+     
         g.pushlist(0);
         g.text(server::modename(gamemode), 0xFFFF80);
         g.separator();
@@ -162,7 +151,7 @@ namespace game
         {
             g.separator();
             if(intermission) g.text("intermission", 0xFFFF80);
-            else
+            else 
             {
                 int secs = max(maplimit-lastmillis, 0)/1000, mins = secs/60;
                 secs %= 60;
@@ -176,12 +165,12 @@ namespace game
         g.poplist();
 
         g.separator();
-
+ 
         int numgroups = groupplayers();
         loopk(numgroups)
         {
             if((k%2)==0) g.pushlist(); // horizontal
-
+            
             scoregroup &sg = *groups[k];
             int bgcolor = sg.team && m_teammode ? (isteam(player1->team, sg.team) ? 0x3030C0 : 0xC03030) : 0,
                 fgcolor = 0xFFFF80;
@@ -194,7 +183,7 @@ namespace game
                 { \
                     fpsent *o = sg.players[i]; \
                     b; \
-                }
+                }    
 
             g.pushlist();
             if(sg.team && m_teammode)
@@ -229,17 +218,18 @@ namespace game
                 g.pushlist(); // horizontal
             }
 
-            if(!cmode || !cmode->hidefrags() || _Graphox_showfrags == 1) //added graphox var here
-            {
+            //added custom code - kille_nl (modified Monday, April 1 2012, 12:17 AM)
+            if(!cmode || !cmode->hidefrags() || _Graphox_showfrags == 1) //added graphox variable
+            { 
                 g.pushlist();
                 g.strut(7);
                 g.text("frags", fgcolor);
                 loopscoregroup(o, g.textf("%d", 0xFFFFDD, NULL, o->frags));
                 g.poplist();
             }
-
-            //added custom code
-			if(_Graphox_showdeaths == 1)
+            
+			//Graphox mod
+			if(_Graphox_showdeaths == 1) //to show deaths
 			{
 				g.pushlist();
                 g.strut(7);
@@ -247,12 +237,12 @@ namespace game
                 loopscoregroup(o, g.textf("%d", 0xFFFFDD, NULL, o->deaths));
                 g.poplist();
 			}
-			if(_Graphox_showkpd == 1)
+
+			if(_Graphox_showkpd == 1) //to show kills per death
 			{
 				g.pushlist();
                 g.strut(7);
                 g.text("kpd", fgcolor);
-                //loopscoregroup(o, g.textf("%4.2f", 0xFFFFDD, NULL, o->frags / ));
 				loopv(sg.players)
 				{
 					float kpd =  float(sg.players[i]->frags) / max(sg.players[i]->deaths,1);
@@ -260,7 +250,8 @@ namespace game
 				}
                 g.poplist();
 			}
-			if(_Graphox_showaccuracy == 1)
+
+			if(_Graphox_showaccuracy == 1) //to show accuracy
 			{
 				g.pushlist();
                 g.strut(7);
@@ -269,6 +260,15 @@ namespace game
                 g.poplist();
 			}
 
+			if(_Graphox_showflags == 1 && strstr(server::modename(gamemode), "ctf")) //to show flags
+			{
+				g.pushlist();
+                g.strut(7);
+                g.text("flags", fgcolor);
+                loopscoregroup(o, g.textf("%d", 0xFFFFDD, NULL, o->flags));
+                g.poplist();
+			}
+			//End: Graphox mod
 
             if(multiplayer(false) || demoplayback)
             {
@@ -284,13 +284,13 @@ namespace game
                     });
                     g.poplist();
                 }
-
+        
                 if(showping)
                 {
                     g.pushlist();
                     g.text("ping", fgcolor);
                     g.strut(6);
-                    loopscoregroup(o,
+                    loopscoregroup(o, 
                     {
                         fpsent *p = o->ownernum >= 0 ? getclient(o->ownernum) : o;
                         if(!p) p = o;
@@ -304,7 +304,7 @@ namespace game
             g.pushlist();
             g.text("name", fgcolor);
             g.strut(10);
-            loopscoregroup(o,
+            loopscoregroup(o, 
             {
                 int status = o->state!=CS_DEAD ? 0xFFFFDD : 0x606060;
                 if(o->privilege)
@@ -324,7 +324,7 @@ namespace game
                 loopscoregroup(o, g.textf("%d", 0xFFFFDD, NULL, o->clientnum));
                 g.poplist();
             }
-
+            
             if(sg.team && m_teammode)
             {
                 g.poplist(); // horizontal
@@ -337,16 +337,16 @@ namespace game
             if(k+1<numgroups && (k+1)%2) g.space(2);
             else g.poplist(); // horizontal
         }
-
+        
         if(showspectators && spectators.length())
         {
             if(showclientnum || player1->privilege>=PRIV_MASTER)
             {
                 g.pushlist();
-
+                
                 g.pushlist();
                 g.textf("%d spectator%s", 0xFFFF80, " ", spectators.length(), spectators.length()!=1 ? "s" : "");
-                loopv(spectators)
+                loopv(spectators) 
                 {
                     fpsent *o = spectators[i];
                     int status = 0xFFFFDD;
@@ -362,7 +362,6 @@ namespace game
                 g.poplist();
 
                 g.space(1);
-
                 g.pushlist();
                 g.text("cn", 0xFFFF80);
                 loopv(spectators) g.textf("%d", 0xFFFFDD, NULL, spectators[i]->clientnum);
@@ -375,7 +374,7 @@ namespace game
                 g.textf("%d spectator%s", 0xFFFF80, " ", spectators.length(), spectators.length()!=1 ? "s" : "");
                 loopv(spectators)
                 {
-                    if((i%3)==0)
+                    if((i%3)==0) 
                     {
                         g.pushlist();
                         g.text("", 0xFFFFDD, "spectator");

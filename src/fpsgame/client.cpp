@@ -1,10 +1,36 @@
 #include "game.h"
+using namespace std;
 
 namespace game
 {
+    VARP(_Graphox_allow_highlight, 0, 0, 1);
+
     VARP(minradarscale, 0, 384, 10000);
     VARP(maxradarscale, 1, 1024, 10000);
     FVARP(minimapalpha, 0, 1, 1);
+
+	bool connected = false; //moved
+	bool is_graphox_server = false;
+	const char *version = "0.0";
+
+	enum {GM_VERSION};
+	void Gmessage(int type, const char *arg)
+	{
+		switch(type)
+		{
+			case GM_VERSION:
+				is_graphox_server = true;
+				version = arg;
+				break;
+		}
+	}
+
+	void Gmessage_send(int type, const char *arg)
+	{
+		if(!connected || !is_graphox_server)
+			return;
+
+	}
 
     #include "capture.h"
     #include "ctf.h"
@@ -23,7 +49,7 @@ namespace game
     bool senditemstoserver = false, sendcrc = false; // after a map change, since server doesn't have map data
     int lastping = 0;
 
-    bool connected = false, remote = false, demoplayback = false, gamepaused = false;
+    bool remote = false, demoplayback = false, gamepaused = false;
     int sessionid = 0, mastermode = MM_OPEN;
     string servinfo = "", connectpass = "";
 
@@ -161,6 +187,21 @@ namespace game
         player1->suicided = player1->respawned = -2;
     }
 
+    int getclientping(int cn)
+    {
+        fpsent *d = getclient(cn);
+        return d ? d->ping : -1;
+    }
+    ICOMMAND(getclientping, "i", (int *cn), intret(getclientping(*cn)));
+    ICOMMAND(getping, "", (), intret(player1->ping));
+
+    int getclientpj(int cn)
+    {
+        fpsent *d = getclient(cn);
+        return d ? d->plag : -1;
+    }
+    ICOMMAND(getclientpj, "i", (int *cn), intret(getclientpj(*cn)));
+
     const char *getclientname(int cn)
     {
         fpsent *d = getclient(cn);
@@ -194,14 +235,14 @@ namespace game
     bool ismaster(int cn)
     {
         fpsent *d = getclient(cn);
-        return d && d->privilege >= PRIV_MASTER;
+        return d && d->privilege == PRIV_MASTER;
     }
     ICOMMAND(ismaster, "i", (int *cn), intret(ismaster(*cn) ? 1 : 0));
 
     bool isadmin(int cn)
     {
         fpsent *d = getclient(cn);
-        return d && d->privilege >= PRIV_ADMIN;
+        return d && d->privilege == PRIV_ADMIN;
     }
     ICOMMAND(isadmin, "i", (int *cn), intret(isadmin(*cn) ? 1 : 0));
 
@@ -287,61 +328,70 @@ namespace game
 
     bool isignored(int cn) { return ignores.find(cn) >= 0; }
 
-    void ignore(int cn)
+    void ignore(int cn, int attempt)
     {
         fpsent *d = getclient(cn);
 
-        if(!d)
+        if(attempt == 0)
+        {
+            conoutf("you are not connected");
+            return;
+        }
+        else if(!d)
         {
             conoutf("please enter a valid client number");
             return;
         }
-
-        if(d == player1)
+        else if(d == player1)
         {
             conoutf("you cannot ignore yourself");
             return;
         }
-
-        if(isignored(cn))
+        else if(isignored(cn))
         {
             conoutf("user %s is already being ignored", d->name);
             return;
         }
-
-        conoutf("ignoring %s", d->name);
-        if(ignores.find(cn) < 0) ignores.add(cn);
+        else
+        {
+            conoutf("ignoring %s", d->name);
+            if(ignores.find(cn) < 0) ignores.add(cn);
+        }
     }
 
-    void unignore(int cn)
+    void unignore(int cn, int attempt)
     {
         fpsent *d = getclient(cn);
 
-        if(!d)
+        if(attempt == 0)
+        {
+            conoutf("you are not connected");
+            return;
+        }
+        else if(!d)
         {
             conoutf("please enter a valid client number");
             return;
         }
-
-        if(d == player1)
+        else if(d == player1)
         {
             conoutf("you cannot unignore yourself");
             return;
         }
-
-        if(!isignored(cn))
+        else if(!isignored(cn))
         {
             conoutf("user %s is not ignored", d->name);
             return;
         }
-
-        if(d) conoutf("stopped ignoring %s", d->name);
-
-        ignores.removeobj(cn);
+        else if(d)
+        {
+            conoutf("stopped ignoring %s", d->name);
+            ignores.removeobj(cn);
+        }
     }
 
-    ICOMMAND(ignore, "s", (char *arg), ignore(parseplayer(arg)));
-    ICOMMAND(unignore, "s", (char *arg), unignore(parseplayer(arg)));
+    ICOMMAND(ignore, "s", (char *arg, int *attempt), ignore(parseplayer(arg), isconnected(*attempt > 0) ? 1 : 0));
+    ICOMMAND(unignore, "s", (char *arg, int *attempt), unignore(parseplayer(arg), isconnected(*attempt > 0) ? 1 : 0));
     ICOMMAND(isignored, "s", (char *arg), intret(isignored(parseplayer(arg)) ? 1 : 0));
 
     void setteam(const char *arg1, const char *arg2)
@@ -706,6 +756,9 @@ namespace game
     void gamedisconnect(bool cleanup)
     {
         if(remote) stopfollowing();
+
+        is_graphox_server = false;
+
         connected = remote = false;
         ignores.setsize(0);
         player1->clientnum = -1;
@@ -729,10 +782,50 @@ namespace game
         }
     }
 
-    void toserver(char *text) { conoutf(CON_CHAT, "%s:\f0 %s", colorname(player1), text); addmsg(N_TEXT, "rcs", player1, text); }
+    void toserver(char *text) {
+        if(strstr(text, "lol") ||
+            strstr(text, "Lol") ||
+            strstr(text, "LoL") ||
+            strstr(text, "LOL") ||
+            strstr(text, "LOl") ||
+            strstr(text, "lOl") ||
+            strstr(text, "lOL") ||
+            strstr(text, "loL") ||
+            strstr(text, "l0l") ||
+            strstr(text, "L0l") ||
+            strstr(text, "L0L") ||
+            strstr(text, "L0L") ||
+            strstr(text, "L0l") ||
+            strstr(text, "l0l") ||
+            strstr(text, "l0L") ||
+            strstr(text, "l0L")) game::stats[12]++;
+
+        conoutf(CON_CHAT, "%s:\f0 %s", colorname(player1), text);
+        addmsg(N_TEXT, "rcs", player1, text);
+    }
     COMMANDN(say, toserver, "C");
 
-    void sayteam(char *text) { conoutf(CON_TEAMCHAT, "%s:\f1 %s", colorname(player1), text); addmsg(N_SAYTEAM, "rcs", player1, text); }
+    void sayteam(char *text) {
+        if(strstr(text, "lol") ||
+            strstr(text, "Lol") ||
+            strstr(text, "LoL") ||
+            strstr(text, "LOL") ||
+            strstr(text, "LOl") ||
+            strstr(text, "lOl") ||
+            strstr(text, "lOL") ||
+            strstr(text, "loL") ||
+            strstr(text, "l0l") ||
+            strstr(text, "L0l") ||
+            strstr(text, "L0L") ||
+            strstr(text, "L0L") ||
+            strstr(text, "L0l") ||
+            strstr(text, "l0l") ||
+            strstr(text, "l0L") ||
+            strstr(text, "l0L")) game::stats[12]++;
+
+        conoutf(CON_TEAMCHAT, "%s:\f1 %s", colorname(player1), text);
+        addmsg(N_SAYTEAM, "rcs", player1, text);
+    }
     COMMAND(sayteam, "C");
 
     static void sendposition(fpsent *d, packetbuf &q)
@@ -1034,6 +1127,30 @@ namespace game
         }
     }
 
+    char *strreplace(const char *s, const char *oldval, const char *newval)
+    {
+        vector<char> buf;
+
+        int oldlen = strlen(oldval);
+        if(!oldlen) return newstring(s);
+        for(;;)
+        {
+            const char *found = strstr(s, oldval);
+            if(found)
+            {
+                while(s < found) buf.add(*s++);
+                for(const char *n = newval; *n; n++) buf.add(*n);
+                s = found + oldlen;
+            }
+            else
+            {
+                while(*s) buf.add(*s++);
+                buf.add('\0');
+                return newstring(buf.getbuf(), buf.length());
+            }
+        }
+    }
+
     extern int deathscore;
 
     void parsemessages(int cn, fpsent *d, ucharbuf &p)
@@ -1098,7 +1215,12 @@ namespace game
                 if(isignored(d->clientnum)) break;
                 if(d->state!=CS_DEAD && d->state!=CS_SPECTATOR)
                     particle_textcopy(d->abovehead(), text, PART_TEXT, 2000, 0x32FF64, 4.0f, -8);
-                conoutf(CON_CHAT, "%s:\f0 %s", colorname(d), text);
+
+                conoutf(CON_CHAT, "%s:%s %s",
+					colorname(d),
+					strstr(text, player1->name) && _Graphox_allow_highlight == 1 ? "\f3" : "\f0",
+					text);
+
                 break;
             }
 
@@ -1111,7 +1233,9 @@ namespace game
                 if(!t || isignored(t->clientnum)) break;
                 if(t->state!=CS_DEAD && t->state!=CS_SPECTATOR)
                     particle_textcopy(t->abovehead(), text, PART_TEXT, 2000, 0x6496FF, 4.0f, -8);
-                conoutf(CON_TEAMCHAT, "%s:\f1 %s", colorname(t), text);
+
+                conoutf(CON_CHAT, "%s:%s %s", colorname(t), strstr(text, player1->name) && _Graphox_allow_highlight == 1 ? "\f1(team): \f3" : "\f1", text);
+
                 break;
             }
 
@@ -1197,7 +1321,7 @@ namespace game
                     if(!text[0]) copystring(text, "unnamed");
                     if(strcmp(text, d->name))
                     {
-                        if(!isignored(d->clientnum)) conoutf("%s is now known as %s", colorname(d), colorname(d, text));
+                        if(!isignored(d->clientnum)) conoutf("%s changed name to %s", colorname(d), colorname(d, text));
                         copystring(d->name, text, MAXNAMELEN+1);
                     }
                 }
@@ -1594,7 +1718,13 @@ namespace game
                 getstring(text, p);
                 int reason = getint(p);
                 fpsent *w = getclient(wn);
-                if(!w) return;
+                if(!w)
+                {
+                	if(wn != -1)
+                		return;
+                	else
+                		Gmessage(reason, text);
+                }
                 filtertext(w->team, text, false, MAXTEAMLEN);
                 static const char *fmt[2] = { "%s switched to team %s", "%s forced to team %s"};
                 if(reason >= 0 && size_t(reason) < sizeof(fmt)/sizeof(fmt[0]))

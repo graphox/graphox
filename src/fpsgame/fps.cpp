@@ -4,7 +4,6 @@ namespace game
 {
 	VARP(hudtheme, 0, 1, 1);
 	VARP(radartheme, 0, 1, 1);
-	VARP(hudside, 0, 0, 1);
 
 	VARP(_Graphox_autosorry, 0, 0, 1);
 	VARP(_Graphox_autonp, 0, 0, 1);
@@ -619,8 +618,50 @@ namespace game
         }
     }
 
+    int lastacc = 0;
+    bool firstcheck = true;
+    int oldacc = 0;
+
+    void statsacc() //accuracy stats updating
+    {
+        int accuracy = player1->totaldamage*100/max(player1->totalshots, 1);    //current accuracy
+        if((totalmillis >= lastacc+30000 && firstcheck) || (totalmillis >= lastacc+5000 && !firstcheck))  //First check - 30s to prevent getting 100% accuracy into avg
+        {
+            if(!game::stats[3] && accuracy)
+            {
+                game::stats[3] = accuracy;
+                game::stats[11]++;
+                oldacc = accuracy;
+                firstcheck = false;
+            }
+            else if(game::stats[3] && accuracy && accuracy != oldacc)
+            {
+                game::stats[3] = ((game::stats[3]*game::stats[11])+accuracy) / (game::stats[11]+1);
+                game::stats[11]++;
+                oldacc = accuracy;
+            }
+            lastacc = totalmillis;
+        }
+    }
+
+    int diesuicide = 0;
+    int ffrag = 0;
+    int when = 0;
+    string who;
+    string whospec;
+    int ffrag2 = 0;
+    int when2 = 0;
+    int when3 = 0;
+    string who3;
+    string who5;
+    string who6;
+    string who7;
+    int ismate = 0;
+    int ismate2 = 0;
+
     void killed(fpsent *d, fpsent *actor)
     {
+
     	d->deaths++;
         if(d->state==CS_EDITING)
         {
@@ -631,50 +672,121 @@ namespace game
         else if(d->state!=CS_ALIVE || intermission) return;
 
         fpsent *h = followingplayer();
+
         if(!h) h = player1;
+
         int contype = d==h || actor==h ? CON_FRAG_SELF : CON_FRAG_OTHER;
+
         string dname, aname;
+
         copystring(dname, d==player1 ? "you" : colorname(d));
         copystring(aname, actor==player1 ? "you" : colorname(actor));
+
+        if(d==player1) game::stats[4]++;
+
         if(actor->type==ENT_AI)
-            conoutf(contype, "\f2%s got killed by %s!", dname, aname);
+        {
+            conoutf(contype, "\f2%s got killed by %s", dname, aname);
+            ffrag2 = 1;
+            when2 = totalmillis;
+            copystring(who3, aname);
+            ismate = 0;
+        }
         else if(d==actor || actor->type==ENT_INANIMATE)
-            conoutf(contype, "\f2%s suicided%s", dname, d==player1 ? "!" : "");
+        {
+            if(d==player1)
+            {
+                conoutf(contype, "\f6you died");
+
+                diesuicide = 1;
+                when3 = totalmillis;
+
+                game::stats[18]++;
+            }
+            else conoutf(contype, "\f2%s died", dname);
+        }
         else if(isteam(d->team, actor->team))
         {
             contype |= CON_TEAMKILL;
+
             if(actor==player1)
             {
             	conoutf(contype, "\f3you fragged a teammate (%s)", dname);
 
-				if(_Graphox_autosorry == 1)
+            	game::stats[26]++;
+
+                if(_Graphox_autosorry == 1)
             	{
             		defformatstring(message)(sr_string, dname);
 
             		conoutf(CON_CHAT, "\f4| %s", message);
-					addmsg(N_TEXT, "rcs", player1, message);
-				}
+                    addmsg(N_TEXT, "rcs", player1, message);
+                }
+
+                ffrag = 1;
+                when = totalmillis;
+                copystring(who, dname);
+                ismate2 = 1;
             }
             else if(d==player1)
             {
             	conoutf(contype, "\f3you got fragged by a teammate (%s)", aname);
-            	//const char *np_string = "No problem %s";
 
-				if(_Graphox_autonp == 1)
+            	game::stats[27]++;
+
+                if(_Graphox_autonp == 1)
             	{
             		defformatstring(message)(np_string, aname);
 
             		conoutf(CON_CHAT, "\f4| %s", message);
-					addmsg(N_TEXT, "rcs", player1, message);
-				}
+                    addmsg(N_TEXT, "rcs", player1, message);
+                }
+
+                ffrag2 = 1;
+                when2 = totalmillis;
+                copystring(who3, aname);
+                ismate = 1;
             }
             else conoutf(contype, "\f2%s fragged a teammate (%s)", aname, dname);
         }
         else
         {
-            if(d==player1) conoutf(contype, "\f2you got fragged by %s", aname);
-            else conoutf(contype, "\f2%s fragged %s", aname, dname);
+            if(d==player1)
+            {
+                conoutf(contype, "\f6you got fragged by %s", aname);
+                ffrag2 = 1;
+                when2 = totalmillis;
+                copystring(who3, aname);
+                ismate = 0;
+            }
+            else
+            {
+                conoutf(contype, actor == player1 ? "\f0%s fragged %s" : "\f2%s fragged %s", aname, dname);
+
+                if(actor==player1)
+                {
+                    if(_Graphox_crosshairbump && _Graphox_bumpcrossonkill) crosshairbump();
+
+                    ffrag = 1;
+                    when = totalmillis;
+                    copystring(who, dname);
+                    ismate2 = 0;
+
+                    if(actor==player1)
+                    {
+                        if(d->ai) game::stats[6]++;
+                        if(!d->ai) game::stats[8]++;
+                        if(player1->gunselect == 0) game::stats[17]++;
+                        if(!strcmp(d->name, "unnamed")) game::stats[7]++;
+                    }
+                }
+            }
         }
+        defformatstring(who4)("\f2you were fragged by %s%s", who3, ismate?", your \f3teammate":"");
+        copystring(who5, who4);
+        defformatstring(who2)("you fragged %s%s", who, ismate2?", your \f3teammate":"");
+        copystring(who6, who2);
+		copystring(who7, "you died");
         deathstate(d);
 		ai::killed(d, actor);
     }
@@ -705,9 +817,30 @@ namespace game
         }
     }
 
+    int getclientfrags(int cn)
+    {
+        fpsent *d = getclient(cn);
+        return d ? d->frags : -1;
+    }
+    ICOMMAND(getclientfrags, "i", (int *cn), intret(getclientfrags(*cn)));
     ICOMMAND(getfrags, "", (), intret(player1->frags));
+
+    int getclientflags(int cn)
+    {
+        fpsent *d = getclient(cn);
+        return d ? d->flags : -1;
+    }
+    ICOMMAND(getclientflags, "i", (int *cn), intret(getclientflags(*cn)));
     ICOMMAND(getflags, "", (), intret(player1->flags));
+
+    int getclientdeaths(int cn)
+    {
+        fpsent *d = getclient(cn);
+        return d ? d->deaths : -1;
+    }
+    ICOMMAND(getclientdeaths, "i", (int *cn), intret(getclientdeaths(*cn)));
     ICOMMAND(getdeaths, "", (), intret(player1->deaths));
+
     ICOMMAND(getaccuracy, "", (), intret((player1->totaldamage*100)/max(player1->totalshots, 1)));
     ICOMMAND(gettotaldamage, "", (), intret(player1->totaldamage));
     ICOMMAND(gettotalshots, "", (), intret(player1->totalshots));
@@ -751,7 +884,7 @@ namespace game
         }
         fpsent *d = clients[cn];
         if(!d) return;
-        if(notify && d->name[0]) conoutf("player %s disconnected", colorname(d));
+        if(notify && d->name[0]) conoutf("%s disconnected from server", colorname(d));
         removeweapons(d);
         removetrackedparticles(d);
         removetrackeddynlights(d);
@@ -855,7 +988,7 @@ namespace game
         if(d->type==ENT_INANIMATE) return;
         if     (waterlevel>0) { if(material!=MAT_LAVA) playsound(S_SPLASH1, d==player1 ? NULL : &d->o); }
         else if(waterlevel<0) playsound(material==MAT_LAVA ? S_BURN : S_SPLASH2, d==player1 ? NULL : &d->o);
-        if     (floorlevel>0) { if(d==player1 || d->type!=ENT_PLAYER || ((fpsent *)d)->ai) msgsound(S_JUMP, d); }
+        if     (floorlevel>0) { if(d==player1 || d->type!=ENT_PLAYER || ((fpsent *)d)->ai) msgsound(S_JUMP, d); if(d==player1) game::stats[2]++; }
         else if(floorlevel<0) { if(d==player1 || d->type!=ENT_PLAYER || ((fpsent *)d)->ai) msgsound(S_LAND, d); }
     }
 
@@ -904,14 +1037,14 @@ namespace game
 
     const char *colorname(fpsent *d, const char *name, const char *prefix)
     {
-        if(!name) name = d->name;
+		if(!name) name = d->name;
         if(name[0] && !duplicatename(d, name) && d->aitype == AI_NONE) return name;
         static string cname[3];
         static int cidx = 0;
         cidx = (cidx+1)%3;
         formatstring(cname[cidx])(d->aitype == AI_NONE ? "%s%s \fs\f5(%d)\fr" : "%s%s \fs\f5[%d]\fr", prefix, name, d->clientnum);
         return cname[cidx];
-    }
+	}
 
     void suicide(physent *d)
     {
@@ -1071,77 +1204,45 @@ namespace game
 
     void newhud(int w, int h)
     {
-        if(player1->state==CS_DEAD || player1->state==CS_SPECTATOR) return;
+        fpsent *f = followingplayer();
+
+        if(player1->state==CS_DEAD || (player1->state==CS_SPECTATOR && !followingplayer())) return;
         glPushMatrix();
         glScalef(1/1.2f, 1/1.2f, 1);
-        if(!m_insta) draw_textf("%d", 80, h*1.2f-128, player1->state==CS_DEAD ? 0 : player1->health);
-        defformatstring(ammo)("%d", player1->ammo[player1->gunselect]);
+        if(!m_insta) draw_textf("%d", 80, h*1.2f-128, player1->state==CS_DEAD ? 0 : player1->state==CS_SPECTATOR ? f->health : player1->health);
+        defformatstring(ammo)("%d", player1->state==CS_SPECTATOR ? f->ammo[f->gunselect] : player1->ammo[player1->gunselect]);
         int wb, hb;
         text_bounds(ammo, wb, hb);
-        draw_textf("%d", w*1.2f-wb-80, h*1.2f-128, player1->ammo[player1->gunselect]);
+        draw_textf("%d", w*1.2f-wb-80, h*1.2f-128, player1->state==CS_SPECTATOR ? f->ammo[f->gunselect] : player1->ammo[player1->gunselect]);
 
         if(player1->quadmillis)
         {
-			if(hudside == 0)
-			{
-				settexture("data/themes/hud/hud_quaddamage_left.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);   glVertex2f(0,   h*1.2f-207);
-				glTexCoord2f(1.0f, 0.0f);   glVertex2f(539, h*1.2f-207);
-				glTexCoord2f(1.0f, 1.0f);   glVertex2f(539, h*1.2f);
-				glTexCoord2f(0.0f, 1.0f);   glVertex2f(0,   h*1.2f);
-				glEnd();
+            settexture("data/themes/hud/hud_quaddamage_left.png");
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f);   glVertex2f(0,   h*1.2f-207);
+            glTexCoord2f(1.0f, 0.0f);   glVertex2f(539, h*1.2f-207);
+            glTexCoord2f(1.0f, 1.0f);   glVertex2f(539, h*1.2f);
+            glTexCoord2f(0.0f, 1.0f);   glVertex2f(0,   h*1.2f);
+            glEnd();
 
-				settexture("data/themes/hud/hud_quaddamage_right.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);   glVertex2f(w*1.2f-135,	h*1.2f-207);
-				glTexCoord2f(1.0f, 0.0f);   glVertex2f(w*1.2f,      h*1.2f-207);
-				glTexCoord2f(1.0f, 1.0f);   glVertex2f(w*1.2f,      h*1.2f);
-				glTexCoord2f(0.0f, 1.0f);   glVertex2f(w*1.2f-135,  h*1.2f);
-				glEnd();
-			}
-			else if(hudside == 1)
-			{
-				settexture("data/themes/hud/hud_quaddamage_left_2.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);   glVertex2f(w*1.2f-539, h*1.2f-207);
-				glTexCoord2f(1.0f, 0.0f);   glVertex2f(w*1.2f,     h*1.2f-207);
-				glTexCoord2f(1.0f, 1.0f);   glVertex2f(w*1.2f,     h*1.2f);
-				glTexCoord2f(0.0f, 1.0f);   glVertex2f(w*1.2f-539, h*1.2f);
-				glEnd();
-
-				settexture("data/themes/hud/hud_quaddamage_right_2.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);   glVertex2f(0,    h*1.2f-207);
-				glTexCoord2f(1.0f, 0.0f);   glVertex2f(135,  h*1.2f-207);
-				glTexCoord2f(1.0f, 1.0f);   glVertex2f(135,  h*1.2f);
-				glTexCoord2f(0.0f, 1.0f);   glVertex2f(0,    h*1.2f);
-				glEnd();
-			}
+            settexture("data/themes/hud/hud_quaddamage_right.png");
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f);   glVertex2f(w*1.2f-135, h*1.2f-207);
+            glTexCoord2f(1.0f, 0.0f);   glVertex2f(w*1.2f,     h*1.2f-207);
+            glTexCoord2f(1.0f, 1.0f);   glVertex2f(w*1.2f,     h*1.2f);
+            glTexCoord2f(0.0f, 1.0f);   glVertex2f(w*1.2f-135, h*1.2f);
+            glEnd();
         }
 
         if(player1->maxhealth > 100)
         {
-			if(hudside == 0)
-			{
-				settexture("data/themes/hud/hud_megahealth.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);   glVertex2f(0,   h*1.2f-207);
-				glTexCoord2f(1.0f, 0.0f);   glVertex2f(539, h*1.2f-207);
-				glTexCoord2f(1.0f, 1.0f);   glVertex2f(539, h*1.2f);
-				glTexCoord2f(0.0f, 1.0f);   glVertex2f(0,   h*1.2f);
-				glEnd();
-			}
-			else if(hudside == 0)
-			{
-				settexture("data/themes/hud/hud_megahealth_2.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);   glVertex2f(w*1.2f-539, h*1.2f-207);
-				glTexCoord2f(1.0f, 0.0f);   glVertex2f(w*1.2f,     h*1.2f-207);
-				glTexCoord2f(1.0f, 1.0f);   glVertex2f(w*1.2f,     h*1.2f);
-				glTexCoord2f(0.0f, 1.0f);   glVertex2f(w*1.2f-539, h*1.2f);
-				glEnd();
-			}
+            settexture("data/themes/hud/hud_megahealth.png");
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f);   glVertex2f(0,   h*1.2f-207);
+            glTexCoord2f(1.0f, 0.0f);   glVertex2f(539, h*1.2f-207);
+            glTexCoord2f(1.0f, 1.0f);   glVertex2f(539, h*1.2f);
+            glTexCoord2f(0.0f, 1.0f);   glVertex2f(0,   h*1.2f);
+            glEnd();
         }
 
         int health = (player1->health*100)/player1->maxhealth,
@@ -1150,7 +1251,7 @@ namespace game
             ah = (armour*167)/100;
 
         float hs = (health*1.0f)/100,
-              as = ((armour*1.0f)/100);
+              as = (armour*1.0f)/100;
 
         if     (chh>hh) chh -= max(1, ((chh-hh)/4));
         else if(chh<hh) chh += max(1, ((hh-chh)/4));
@@ -1164,104 +1265,110 @@ namespace game
 
         if(player1->health > 0 && !m_insta)
         {
-			if(hudside == 0)
-			{
-				settexture("data/themes/hud/hud_health.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 1.0f-chs);   glVertex2f(47, h*1.2f-chh-56);
-				glTexCoord2f(1.0f, 1.0f-chs);   glVertex2f(97, h*1.2f-chh-56);
-				glTexCoord2f(1.0f, 1.0f);      glVertex2f(97, h*1.2f-57);
-				glTexCoord2f(0.0f, 1.0f);      glVertex2f(47, h*1.2f-57);
-				glEnd();
-			}
-			else if(hudside == 0)
-			{
-				settexture("data/themes/hud/hud_health_2.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 1.0f-chs);   glVertex2f(w*1.2f-97, h*1.2f-chh-56);
-				glTexCoord2f(1.0f, 1.0f-chs);   glVertex2f(w*1.2f-47, h*1.2f-chh-56);
-				glTexCoord2f(1.0f, 1.0f);       glVertex2f(w*1.2f-47, h*1.2f-57);
-				glTexCoord2f(0.0f, 1.0f);       glVertex2f(w*1.2f-97, h*1.2f-57);
-				glEnd();
-			}
+            settexture("data/themes/hud/hud_health.png");
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 1.0f-chs);   glVertex2f(47, h*1.2f-chh-56);
+            glTexCoord2f(1.0f, 1.0f-chs);   glVertex2f(97, h*1.2f-chh-56);
+            glTexCoord2f(1.0f, 1.0f);      glVertex2f(97, h*1.2f-57);
+            glTexCoord2f(0.0f, 1.0f);      glVertex2f(47, h*1.2f-57);
+            glEnd();
         }
 
         if(player1->armour > 0)
         {
-			if(hudside == 0)
-			{
-				settexture("data/themes/hud/hud_armour.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f,    0.0f);   glVertex2f(130,    h*1.2f-62);
-				glTexCoord2f(cas,      0.0f);   glVertex2f(130+cah, h*1.2f-62);
-				glTexCoord2f(cas,      1.0f);   glVertex2f(130+cah, h*1.2f-44);
-				glTexCoord2f(0.0f,    1.0f);   glVertex2f(130,    h*1.2f-44);
-				glEnd();
-			}
-			else if(hudside == 1)
-			{
-				settexture("data/themes/hud/hud_armour_2.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f,    0.0f);    glVertex2f(w*1.2f-130+cah,  h*1.2f-62);
-				glTexCoord2f(cas,      0.0f);   glVertex2f(w*1.2f-130,      h*1.2f-62);
-				glTexCoord2f(cas,      1.0f);   glVertex2f(w*1.2f-130,      h*1.2f-44);
-				glTexCoord2f(0.0f,    1.0f);    glVertex2f(w*1.2f-130+cah,  h*1.2f-44);
-				glEnd();
-			}
+            settexture("data/themes/hud/hud_armour.png");
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0f,    0.0f);   glVertex2f(130,    h*1.2f-62);
+            glTexCoord2f(cas,      0.0f);   glVertex2f(130+cah, h*1.2f-62);
+            glTexCoord2f(cas,      1.0f);   glVertex2f(130+cah, h*1.2f-44);
+            glTexCoord2f(0.0f,    1.0f);   glVertex2f(130,    h*1.2f-44);
+            glEnd();
         }
 
         if(!m_insta)
         {
-			if(hudside == 0)
-			{
-				settexture("data/themes/hud/hud_left.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);   glVertex2f(0,   h*1.2f-207);
-				glTexCoord2f(1.0f, 0.0f);   glVertex2f(539, h*1.2f-207);
-				glTexCoord2f(1.0f, 1.0f);   glVertex2f(539, h*1.2f);
-				glTexCoord2f(0.0f, 1.0f);   glVertex2f(0,   h*1.2f);
-				glEnd();
-			}
-			else if(hudside == 1)
-			{
-				settexture("data/themes/hud/hud_left_2.png");
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);   glVertex2f(w*1.2f-539, h*1.2f-207);
-				glTexCoord2f(1.0f, 0.0f);   glVertex2f(w*1.2f,     h*1.2f-207);
-				glTexCoord2f(1.0f, 1.0f);   glVertex2f(w*1.2f,     h*1.2f);
-				glTexCoord2f(0.0f, 1.0f);   glVertex2f(w*1.2f-539, h*1.2f);
-				glEnd();
-			}
+            settexture("data/themes/hud/hud_left.png");
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f);   glVertex2f(0,   h*1.2f-207);
+            glTexCoord2f(1.0f, 0.0f);   glVertex2f(539, h*1.2f-207);
+            glTexCoord2f(1.0f, 1.0f);   glVertex2f(539, h*1.2f);
+            glTexCoord2f(0.0f, 1.0f);   glVertex2f(0,   h*1.2f);
+            glEnd();
         }
 
-		if(hudside == 0)
-		{
-			settexture("data/themes/hud/hud_right.png");
-			glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f);   glVertex2f(w*1.2f-135, h*1.2f-207);
-			glTexCoord2f(1.0f, 0.0f);   glVertex2f(w*1.2f,     h*1.2f-207);
-			glTexCoord2f(1.0f, 1.0f);   glVertex2f(w*1.2f,     h*1.2f);
-			glTexCoord2f(0.0f, 1.0f);   glVertex2f(w*1.2f-135, h*1.2f);
-			glEnd();
-		}
-		else if(hudside == 1)
-		{
-			settexture("data/themes/hud/hud_right_2.png");
-			glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f);   glVertex2f(0,     h*1.2f-207);
-			glTexCoord2f(1.0f, 0.0f);   glVertex2f(135,   h*1.2f-207);
-			glTexCoord2f(1.0f, 1.0f);   glVertex2f(135,   h*1.2f);
-			glTexCoord2f(0.0f, 1.0f);   glVertex2f(0,     h*1.2f);
-			glEnd();
-		}
+        settexture("data/themes/hud/hud_right.png");
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f);   glVertex2f(w*1.2f-135, h*1.2f-207);
+        glTexCoord2f(1.0f, 0.0f);   glVertex2f(w*1.2f,     h*1.2f-207);
+        glTexCoord2f(1.0f, 1.0f);   glVertex2f(w*1.2f,     h*1.2f);
+        glTexCoord2f(0.0f, 1.0f);   glVertex2f(w*1.2f-135, h*1.2f);
+        glEnd();
 
+        int maxammo;
+
+        switch(player1->gunselect)
+        {
+            case GUN_FIST:
+                maxammo = 1;
+                break;
+
+            case GUN_RL:
+            case GUN_RIFLE:
+                maxammo = m_insta ? 100 : 15;
+                break;
+
+            case GUN_SG:
+            case GUN_GL:
+                maxammo = 30;
+                break;
+
+            case GUN_CG:
+                maxammo = 60;
+                break;
+
+            case GUN_PISTOL:
+                maxammo = 120;
+                break;
+        }
+
+        int curammo = (player1->ammo[player1->gunselect]*100)/maxammo,
+            amh = (curammo*101)/100;
+
+        float ams = (curammo*1.0f)/100;
+
+        if     (camh>amh) camh -= max(1, ((camh-amh)/4));
+        else if(camh<amh) camh += max(1, ((amh-camh)/4));
+        if     (cams>ams) cams -= max(0.01f, ((cams-ams)/4));
+        else if(cams<ams) cams += max(0.01f, ((ams-cams)/4));
+
+        if(player1->ammo[player1->gunselect] > 0)
+        {
+            settexture("data/themes/hud/hud_health.png");
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 1.0f-cams);   glVertex2f(w*1.2f-47, h*1.2f-camh-56);
+            glTexCoord2f(1.0f, 1.0f-cams);   glVertex2f(w*1.2f-97, h*1.2f-camh-56);
+            glTexCoord2f(1.0f, 1.0f);       glVertex2f(w*1.2f-97, h*1.2f-57);
+            glTexCoord2f(0.0f, 1.0f);       glVertex2f(w*1.2f-47, h*1.2f-57);
+            glEnd();
+        }
 
         glPopMatrix();
         glPushMatrix();
 
         glScalef(1/4.0f, 1/4.0f, 1);
 
-		glPopMatrix();
+        defformatstring(icon)("data/themes/hud/guns/%d.png", player1->gunselect);
+        settexture(icon);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f);   glVertex2f(w*4.0f-1162,    h*4.0f-350);
+        glTexCoord2f(1.0f, 0.0f);   glVertex2f(w*4.0f-650,     h*4.0f-350);
+        glTexCoord2f(1.0f, 1.0f);   glVertex2f(w*4.0f-650,     h*4.0f-50);
+        glTexCoord2f(0.0f, 1.0f);   glVertex2f(w*4.0f-1162,    h*4.0f-50);
+        glEnd();
+
+
+
+        glPopMatrix();
     }
 
     void gameplayhud(int w, int h)
@@ -1280,8 +1387,8 @@ namespace game
             fpsent *f = followingplayer();
             text_bounds(f ? colorname(f) : " ", fw, fh);
             fh = max(fh, ph);
-            draw_text("SPECTATOR", w*1800/h - tw - pw, 1650 - th - fh);
-            if(f) draw_text(colorname(f), w*1800/h - fw - pw, 1650 - fh);
+            draw_text("SPECTATOR", w*1000/h - tw - pw, 1800 - th - fh);
+            if(f) draw_text(colorname(f), w*1000/h - fw - pw, 1800 - fh);
         }
 
         fpsent *d = hudplayer();
@@ -1307,18 +1414,17 @@ namespace game
     {
         switch(index)
         {
-            case 2: return "data/hit.png";
             case 1: return "data/teammate.png";
             default: return "data/crosshair.png";
         }
     }
 
-    int selectcrosshair(float &r, float &g, float &b)
+    int selectcrosshair(float &r, float &g, float &b, int &w, int &h)
     {
         fpsent *d = hudplayer();
-        if(d->state==CS_SPECTATOR || d->state==CS_DEAD) return -1;
+        if(d->state==CS_SPECTATOR) return -1;
 
-        if(d->state!=CS_ALIVE) return 0;
+        //if(d->state!=CS_ALIVE) return 0;
 
         int crosshair = 0;
         if(lasthit && lastmillis - lasthit < hitcrosshair) crosshair = 2;
@@ -1338,6 +1444,35 @@ namespace game
             else if(d->health<=50) { r = 1.0f; g = 0.5f; b = 0; }
         }
         if(d->gunwait) { r *= 0.5f; g *= 0.5f; b *= 0.5f; }
+
+        if(ffrag && totalmillis-when<=4000)
+        {
+            int tw, th;
+            text_bounds(who6, tw, th);
+            glPushMatrix();
+            glScalef(1/2.5f, 1/2.5f, 1);
+            draw_textf(who6, (w*2.5f - tw)/2, h*2.5f-500, who);
+            glPopMatrix();
+        }
+        if(ffrag2 && totalmillis-when2<=4000)
+        {
+            int tw, th;
+            text_bounds(who5, tw, th);
+            glPushMatrix();
+            glScalef(1/2.5f, 1/2.5f, 1);
+            draw_textf(who5, (w*2.5f - tw)/2, h*2.5f-400, who);
+            glPopMatrix();
+        }
+        if(diesuicide && totalmillis-when3<=4000)
+        {
+            int tw, th;
+            text_bounds(who7, tw, th);
+            glPushMatrix();
+            glScalef(1/2.5f, 1/2.5f, 1);
+            draw_textf(who7, (w*2.5f - tw)/2, h*2.5f-300, who);
+            glPopMatrix();
+        }
+
         return crosshair;
     }
 
@@ -1365,16 +1500,17 @@ namespace game
 		//"sortbyport" = 7
 		//"sortbydescription" = 8
 
-		int sortbythat = 0;
+		static int actions[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 		static const int struts[] =  { 0,       0,          12,     12,      8,         13,      6,       24 };
 		if(size_t(i) >= sizeof(names)/sizeof(names[0])) return false;
 		g->pushlist();
-		       if(g->button(names[i], 0xFFFFDD)&G3D_UP)
+		       if(g->button(names[i], 0xFFFF80)&G3D_UP)
 			   {
 
 				   sortbythat = i+1;
 
 			   }
+        g->separator();
 		//g->button(names[i], 0xFFFF80, "sortlikeme"/*!i ? " " : NULL*/); //a_teammate 26.02.2011
 		if(struts[i]) g->strut(struts[i]);
 		g->mergehits(true);
@@ -1396,8 +1532,6 @@ namespace game
     {
         return (n>=MM_START && size_t(n-MM_START)<sizeof(mastermodeicons)/sizeof(mastermodeicons[0])) ? mastermodeicons[n-MM_START] : unknown;
     }
-
-
 
 	bool serverinfoentry(g3d_gui *g, int i, const char *name, int port, const char *sdesc, const char *map, int ping, const vector<int> &attr, int np)
 	{

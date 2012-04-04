@@ -61,8 +61,8 @@ enum
 struct fpsentity : extentity
 {
     int triggerstate, lasttrigger;
-    
-    fpsentity() : triggerstate(TRIGGER_RESET), lasttrigger(0) {} 
+
+    fpsentity() : triggerstate(TRIGGER_RESET), lasttrigger(0) {}
 };
 
 enum { GUN_FIST = 0, GUN_SG, GUN_CG, GUN_RL, GUN_RIFLE, GUN_GL, GUN_PISTOL, GUN_FIREBALL, GUN_ICEBALL, GUN_SLIMEBALL, GUN_BITE, GUN_BARREL, NUMGUNS };
@@ -310,7 +310,10 @@ enum
     HICON_TEXTY   = 1644,
     HICON_STEP    = 490,
     HICON_SIZE    = 120,
-    HICON_SPACE   = 40
+    HICON_SPACE   = 40,
+    HICON_XSTEP    = 220,
+    HICON_YSTEP    = 120,
+
 };
 
 static struct itemstat { int add, max, sound; const char *name; int icon, info; } itemstats[] =
@@ -666,9 +669,9 @@ namespace game
     extern string clientmap;
     extern bool intermission;
     extern int maptime, maprealtime, maplimit;
-    
+
     extern vector<local_player *> local_players;
-        
+
     extern fpsent *player1;
     extern vector<fpsent *> players, clients;
     extern int lastspawnattempt;
@@ -801,6 +804,9 @@ namespace server
     extern int msgsizelookup(int msg);
     extern bool serveroption(const char *arg);
     extern bool delayspawn(int type);
+
+	//mod
+    extern void admincommands();
 }
 
 #endif
