@@ -2037,12 +2037,18 @@ VARP(crosshairsize, 0, 15, 50);
 VARP(cursorsize, 0, 30, 50);
 VARP(crosshairfx, 0, 1, 1);
 
+VAR(_Graphox_crosshairbump, 0, 0, 1);
+VAR(_Graphox_bumpcrossonkill, 0, 0, 1);
+VAR(_Graphox_bumpcrossonpickup, 0, 0, 1);
+VAR(_Graphox_bumpcrossonteleport, 0, 0, 1);
 int oldsize;
 int cmillis;
 bool dofx = false;
 
 void crosshairbump()
 {
+	if(!_Graphox_crosshairbump) return;
+
     if(oldsize == crosshairsize || !oldsize) oldsize = crosshairsize;
     if(dofx)
     {

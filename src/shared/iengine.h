@@ -4,6 +4,10 @@ extern int curtime;                     // current frame time
 extern int lastmillis;                  // last time
 extern int totalmillis;                 // total elapsed time
 extern int gamespeed, paused;
+extern int _Graphox_crosshairbump;
+extern int _Graphox_bumpcrossonkill;
+extern int _Graphox_bumpcrossonpickup;
+extern int _Graphox_bumpcrossonteleport;
 extern int theme;
 
 enum

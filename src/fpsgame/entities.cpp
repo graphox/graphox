@@ -138,7 +138,7 @@ namespace entities
         d->pickup(type);
         if(d==player1)
         {
-            crosshairbump();
+            if(_Graphox_crosshairbump && _Graphox_bumpcrossonpickup) crosshairbump();
             switch(type)
             {
                 case I_BOOST:
@@ -221,7 +221,7 @@ namespace entities
                 updatedynentcache(d);
                 ai::inferwaypoints(d, ents[n]->o, ents[e]->o, 16.f);
                 if(d == player1)
-                    crosshairbump();
+                    if(_Graphox_crosshairbump && _Graphox_bumpcrossonteleport) crosshairbump();
                 break;
             }
         }

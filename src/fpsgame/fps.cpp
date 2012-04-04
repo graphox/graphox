@@ -765,7 +765,7 @@ namespace game
 
                 if(actor==player1)
                 {
-                    crosshairbump();
+                    if(_Graphox_crosshairbump && _Graphox_bumpcrossonkill) crosshairbump();
 
                     ffrag = 1;
                     when = totalmillis;
