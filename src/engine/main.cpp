@@ -407,9 +407,6 @@ void renderbackground(const char *caption, Texture *mapshot, const char *mapname
 			}
 			glEnable(GL_BLEND);
 
-			if(caption) copystring(backgroundtxt, caption);
-			else copystring(backgroundtxt, "");
-
 			if(mapshot || mapname)
 			{
 				if(mapshot && mapshot!=notexture)
@@ -722,7 +719,7 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		if((theme == 1 || theme == 2 || theme == 3) && defaultload == 0)
+		if(defaultload == 0)
 		{
 			settexture("data/themes/se/circle1.png");
 			glPushMatrix();
@@ -778,7 +775,7 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 				  fv1 = 0/64.0f, fv2 = 52/64.0f;
 			if(theme == 1)
 				settexture("data/themes/se/loading_frame.png", 3);
-			if(theme == 2)
+			if(theme == 2 || theme == 3)
 				settexture("data/themes/crash/loading_frame.png", 3);
 			glBegin(GL_TRIANGLE_STRIP);
 			glTexCoord2f(fu1, fv1); glVertex2f(fx,    fy);
@@ -798,7 +795,7 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 			glPopMatrix();
 			if(theme == 1)
 				settexture("data/themes/se/loading_bar.png", 3);
-			if(theme == 2)
+			if(theme == 2 || theme == 3)
 				settexture("data/themes/crash/loading_bar.png", 3);
 			glBegin(GL_QUADS);
 			glTexCoord2f(su1, bv1); glVertex2f(bx,    by);
