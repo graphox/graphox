@@ -2152,33 +2152,52 @@ void drawcrosshair(int w, int h)
     }
     else
     {
-        int index = game::selectcrosshair(r, g, b, w, h);
-        if(index < 0) return;
-        if(!crosshairfx)
-        {
-            index = 0;
-            r = g = b = 1;
-        }
-        if(_Graphox_crosshairbump) index = 0;
-        crosshair = crosshairs[index];
-        if(!crosshair)
-        {
+		if(zoom) {
+			crosshairs[4] = textureload("data/zoom.png", 3, true);
+			int index = 4;
+			if(index < 0) return;
+			if(!crosshairfx)
+			{
+				index = 0;
+	            r = g = b = 1;
+		    }
+			if(_Graphox_crosshairbump) index = 0;
+	        crosshair = crosshairs[index];
+		    if(!crosshair)
+			{
+				loadcrosshair(NULL, index);
+	            crosshair = crosshairs[index];
+		    }
+			chsize = crosshairsize*w/900.0f;
+		} else {
+			int index = game::selectcrosshair(r, g, b, w, h);
+			if(index < 0) return;
+			if(!crosshairfx)
+			{
+				index = 0;
+	            r = g = b = 1;
+		    }
+			if(_Graphox_crosshairbump) index = 0;
+	        crosshair = crosshairs[index];
+		    if(!crosshair)
+			{
             loadcrosshair(NULL, index);
-            crosshair = crosshairs[index];
-        }
-        chsize = crosshairsize*w/900.0f;
-    }
-    if(crosshair->bpp==4) glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    else glBlendFunc(GL_ONE, GL_ONE);
-    glColor3f(r, g, b);
+	            crosshair = crosshairs[index];
+		    }
+			chsize = crosshairsize*w/900.0f;
+		}
+	}
+	if(crosshair->bpp==4) glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	else glBlendFunc(GL_ONE, GL_ONE);
+	glColor3f(r, g, b);
     float x = cx*w - (windowhit ? 0 : chsize/2.0f);
-    float y = cy*h - (windowhit ? 0 : chsize/2.0f);
+	float y = cy*h - (windowhit ? 0 : chsize/2.0f);
     glBindTexture(GL_TEXTURE_2D, crosshair->id);
-    glBegin(GL_TRIANGLE_STRIP);
+	glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(0, 0); glVertex2f(x,          y);
-    glTexCoord2f(1, 0); glVertex2f(x + chsize, y);
-    glTexCoord2f(0, 1); glVertex2f(x,          y + chsize);
-    glTexCoord2f(1, 1); glVertex2f(x + chsize, y + chsize);
+	glTexCoord2f(1, 0); glVertex2f(x + chsize, y);
+	glTexCoord2f(0, 1); glVertex2f(x,          y + chsize);
+	glTexCoord2f(1, 1); glVertex2f(x + chsize, y + chsize);
     glEnd();
 }
 

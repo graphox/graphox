@@ -1663,8 +1663,8 @@ int main(int argc, char **argv)
     execfile("data/menus.cfg");
     execfile("data/sounds.cfg");
     execfile("data/brush.cfg");
-    execfile("data/themes/commands.cfg");
-    execfile("data/themes/menus.cfg");
+    if(!execfile("data/themes/commands.cfg")) fatal("cannot find graphox commands file");
+    if(!execfile("data/themes/menus.cfg")) fatal("cannot find graphox menus file");
     execfile("mybrushes.cfg", false);
     if(game::savedservers()) execfile(game::savedservers(), false);
 
@@ -1746,7 +1746,6 @@ int main(int argc, char **argv)
 
         checksleep(lastmillis);
 
-		log("stats: time: start");
         game::dotime();
 
         serverslice(false, 0);
