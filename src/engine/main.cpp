@@ -1763,7 +1763,7 @@ int main(int argc, char **argv)
 
         inbetweenframes = false;
         if(mainmenu) gl_drawmainmenu(screen->w, screen->h);
-        else gl_drawframe(screen->w, screen->h);
+        else gl_drawframe(screen->w, screen->h);	
         swapbuffers();
         renderedframe = inbetweenframes = true;
     }
