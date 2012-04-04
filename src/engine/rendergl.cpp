@@ -2159,7 +2159,7 @@ void drawcrosshair(int w, int h)
             index = 0;
             r = g = b = 1;
         }
-        index = 0;
+        if(_Graphox_crosshairbump) index = 0;
         crosshair = crosshairs[index];
         if(!crosshair)
         {
