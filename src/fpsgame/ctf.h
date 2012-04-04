@@ -3,6 +3,8 @@
 #define ctfteamflag(s) (!strcmp(s, "good") ? 1 : (!strcmp(s, "evil") ? 2 : 0))
 #define ctfflagteam(i) (i==1 ? "good" : (i==2 ? "evil" : NULL))
 
+VARP(goodjob, 0, 0, 1);
+
 #ifdef SERVMODE
 struct ctfservmode : servmode
 #else
@@ -873,6 +875,13 @@ struct ctfclientmode : clientmode
         d->flags = dflags;
         conoutf(CON_GAMEINFO, "%s scored for %s team", d==player1 ? "you" : colorname(d), team==ctfteamflag(player1->team) ? "your" : "the enemy");
         playsound(S_FLAGSCORE);
+		
+		if(goodjob && isteam(player1->team, d->team) && d!=player1)
+ 	    {
+ 	        defformatstring(msg)("\f4| Good job %s", d->name);
+ 	        conoutf(CON_TEAMCHAT, "%s:\f1 %s", colorname(player1), msg);
+			addmsg(N_SAYTEAM, "rcs", player1, msg);
+		}
 
         if(score >= FLAGLIMIT) conoutf(CON_GAMEINFO, "%s team captured %d flags", team==ctfteamflag(player1->team) ? "your" : "the enemy", score);
     }

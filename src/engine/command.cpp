@@ -1068,8 +1068,7 @@ ICOMMAND(loopfiles, "ssss", (char *var, char *dir, char *ext, char *body), {
     if(files.length()) popident(*id);
 });
 
-void execdir(const char *dir)
-{
+ICOMMAND(execdir, "s", (char *dir), {
     ident *id = newident("f");
     if(id->type!=ID_ALIAS) return;
     vector<char *> files;
@@ -1083,12 +1082,11 @@ void execdir(const char *dir)
         if(i) aliasa(id->name, file);
         else pushident(*id, file);
 
-	defformatstring(files)("%s/%s.cfg", dir, file);
+		defformatstring(files)("%s/%s.cfg", dir, file);
 
         execfile(files, false);
     }
-};
-ICOMMAND(execdir, "s", (char *dir), execdir(dir));
+});
 
 ICOMMAND(+, "ii", (int *a, int *b), intret(*a + *b));
 ICOMMAND(*, "ii", (int *a, int *b), intret(*a * *b));

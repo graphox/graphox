@@ -45,11 +45,6 @@ GraphOX:
 25: theme changed
 26: teamkills mades
 27: teamkills recieved
-28: aborted connection
-29: unresolved server
-30: connection to server
-31: LAN connect
-32: could not connect
 
 **/
 

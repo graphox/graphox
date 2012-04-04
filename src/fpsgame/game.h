@@ -310,7 +310,10 @@ enum
     HICON_TEXTY   = 1644,
     HICON_STEP    = 490,
     HICON_SIZE    = 120,
-    HICON_SPACE   = 40
+    HICON_SPACE   = 40,
+    HICON_XSTEP    = 220,
+    HICON_YSTEP    = 120,
+
 };
 
 static struct itemstat { int add, max, sound; const char *name; int icon, info; } itemstats[] =

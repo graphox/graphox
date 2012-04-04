@@ -606,8 +606,6 @@ namespace game
         {
             case GUN_FIST:
                 if(d->type==ENT_PLAYER && chainsawhudgun) sound = S_CHAINSAW_ATTACK;
-                if(d == player1)
-                    crosshairbump();
                 break;
 
             case GUN_SG:

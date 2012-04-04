@@ -644,21 +644,23 @@ namespace game
         }
     }
 
+    int diesuicide = 0;
     int ffrag = 0;
     int when = 0;
     string who;
     string whospec;
     int ffrag2 = 0;
     int when2 = 0;
+    int when3 = 0;
     string who3;
     string who5;
     string who6;
+    string who7;
     int ismate = 0;
     int ismate2 = 0;
 
     void killed(fpsent *d, fpsent *actor)
     {
-        fpsent *f = followingplayer();
 
     	d->deaths++;
         if(d->state==CS_EDITING)
@@ -695,6 +697,10 @@ namespace game
             if(d==player1)
             {
                 conoutf(contype, "\f6you died");
+
+                diesuicide = 1;
+                when3 = totalmillis;
+
                 game::stats[18]++;
             }
             else conoutf(contype, "\f2%s died", dname);
@@ -780,6 +786,7 @@ namespace game
         copystring(who5, who4);
         defformatstring(who2)("you fragged %s%s", who, ismate2?", your \f3teammate":"");
         copystring(who6, who2);
+		copystring(who7, "you died");
         deathstate(d);
 		ai::killed(d, actor);
     }
@@ -1030,7 +1037,7 @@ namespace game
 
     const char *colorname(fpsent *d, const char *name, const char *prefix)
     {
-        if(!name) name = d->name;
+		if(!name) name = d->name;
         if(name[0] && !duplicatename(d, name) && d->aitype == AI_NONE) return name;
         static string cname[3];
         static int cidx = 0;
@@ -1454,6 +1461,15 @@ namespace game
             glPushMatrix();
             glScalef(1/2.5f, 1/2.5f, 1);
             draw_textf(who5, (w*2.5f - tw)/2, h*2.5f-400, who);
+            glPopMatrix();
+        }
+        if(diesuicide && totalmillis-when3<=4000)
+        {
+            int tw, th;
+            text_bounds(who7, tw, th);
+            glPushMatrix();
+            glScalef(1/2.5f, 1/2.5f, 1);
+            draw_textf(who7, (w*2.5f - tw)/2, h*2.5f-300, who);
             glPopMatrix();
         }
 
