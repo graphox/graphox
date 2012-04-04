@@ -101,7 +101,7 @@ extern PFNGLGETUNIFORMINDICESPROC       glGetUniformIndices_;
 extern PFNGLGETACTIVEUNIFORMSIVPROC     glGetActiveUniformsiv_;
 extern PFNGLGETUNIFORMBLOCKINDEXPROC    glGetUniformBlockIndex_;
 extern PFNGLGETACTIVEUNIFORMBLOCKIVPROC glGetActiveUniformBlockiv_;
-extern PFNGLUNIFORMBLOCKBINDINGPROC     glUniformBlockBinding_;
+extern PFNGLUNIFORMBLOCKBINDINGPROC     glUniformBlockBinding_; 
 extern PFNGLBINDBUFFERBASEPROC          glBindBufferBase_;
 extern PFNGLBINDBUFFERRANGEPROC         glBindBufferRange_;
 
@@ -145,9 +145,9 @@ struct LocalShaderParamState : ShaderParam
     float curval[4];
     GLenum format;
 
-    LocalShaderParamState() : format(GL_FLOAT_VEC4_ARB)
-    {
-        memset(curval, -1, sizeof(curval));
+    LocalShaderParamState() : format(GL_FLOAT_VEC4_ARB) 
+    { 
+        memset(curval, -1, sizeof(curval)); 
     }
     LocalShaderParamState(const ShaderParam &p) : ShaderParam(p), format(GL_FLOAT_VEC4_ARB)
     {
@@ -163,7 +163,7 @@ struct ShaderParamState
         INVALID,
         DIRTY
     };
-
+    
     const char *name;
     float val[4];
     bool local;
@@ -176,10 +176,10 @@ struct ShaderParamState
     }
 };
 
-enum
-{
-    SHADER_DEFAULT    = 0,
-    SHADER_NORMALSLMS = 1<<0,
+enum 
+{ 
+    SHADER_DEFAULT    = 0, 
+    SHADER_NORMALSLMS = 1<<0, 
     SHADER_ENVMAP     = 1<<1,
     SHADER_GLSLANG    = 1<<2,
     SHADER_OPTION     = 1<<3,
@@ -261,11 +261,11 @@ struct Shader
     void setvariant_(int col, int row, Shader *fallbackshader)
     {
         Shader *s = fallbackshader;
-        for(col = min(col, detailshader->variants[row].length()-1); col >= 0; col--)
-            if(!(detailshader->variants[row][col]->type&SHADER_INVALID))
-            {
-                s = detailshader->variants[row][col];
-                break;
+        for(col = min(col, detailshader->variants[row].length()-1); col >= 0; col--) 
+            if(!(detailshader->variants[row][col]->type&SHADER_INVALID)) 
+            { 
+                s = detailshader->variants[row][col]; 
+                break; 
             }
         if(lastshader!=s) s->bindprograms();
     }
@@ -304,7 +304,7 @@ struct Shader
     {
         if(lastshader!=detailshader) detailshader->bindprograms();
     }
-
+ 
     void set()
     {
         if(!this || !detailshader || renderpath==R_FIXEDFUNCTION) return;
@@ -322,7 +322,7 @@ struct Shader
 
     bool compile();
     void cleanup(bool invalid = false);
-
+    
     static int uniformlocversion();
 };
 
@@ -345,16 +345,16 @@ struct ImageData
         : data(NULL), owner(NULL), freefunc(NULL)
     {}
 
-
-    ImageData(int nw, int nh, int nbpp, int nlevels = 1, int nalign = 0, GLenum ncompressed = GL_FALSE)
-    {
-        setdata(NULL, nw, nh, nbpp, nlevels, nalign, ncompressed);
+    
+    ImageData(int nw, int nh, int nbpp, int nlevels = 1, int nalign = 0, GLenum ncompressed = GL_FALSE) 
+    { 
+        setdata(NULL, nw, nh, nbpp, nlevels, nalign, ncompressed); 
     }
 
     ImageData(int nw, int nh, int nbpp, uchar *data)
         : owner(NULL), freefunc(NULL)
-    {
-        setdata(data, nw, nh, nbpp);
+    { 
+        setdata(data, nw, nh, nbpp); 
     }
 
     ImageData(SDL_Surface *s) { wrap(s); }
@@ -372,9 +372,9 @@ struct ImageData
         data = ndata ? ndata : new uchar[calcsize()];
         if(!ndata) { owner = this; freefunc = NULL; }
     }
-
+  
     int calclevelsize(int level) const { return ((max(w>>level, 1)+align-1)/align)*((max(h>>level, 1)+align-1)/align)*bpp; }
-
+ 
     int calcsize() const
     {
         if(!align) return w*h*bpp;
@@ -434,22 +434,20 @@ struct Texture
         IMAGE      = 0,
         CUBEMAP    = 1,
         TYPE       = 0xFF,
-
+        
         STUB       = 1<<8,
         TRANSIENT  = 1<<9,
-        COMPRESSED = 1<<10,
+        COMPRESSED = 1<<10, 
         FLAGS      = 0xF0
     };
 
     char *name;
     int type, w, h, xs, ys, bpp, clamp;
     bool mipmap, canreduce;
-
+    GLuint id;
     uchar *alphamask;
 
     Texture() : alphamask(NULL) {}
-
-    GLuint id;
 };
 
 enum
@@ -464,19 +462,19 @@ enum
     TEX_ENVMAP
 };
 
-enum
-{
-    VSLOT_SHPARAM = 0,
-    VSLOT_SCALE,
-    VSLOT_ROTATION,
-    VSLOT_OFFSET,
-    VSLOT_SCROLL,
-    VSLOT_LAYER,
+enum 
+{ 
+    VSLOT_SHPARAM = 0, 
+    VSLOT_SCALE, 
+    VSLOT_ROTATION, 
+    VSLOT_OFFSET, 
+    VSLOT_SCROLL, 
+    VSLOT_LAYER, 
     VSLOT_ALPHA,
     VSLOT_COLOR,
-    VSLOT_NUM
+    VSLOT_NUM 
 };
-
+   
 struct VSlot
 {
     Slot *slot;
@@ -495,10 +493,10 @@ struct VSlot
     vec envscale;
     int skipped;
 
-    VSlot(Slot *slot = NULL, int index = -1) : slot(slot), next(NULL), index(index), changed(0), skipped(0)
-    {
+    VSlot(Slot *slot = NULL, int index = -1) : slot(slot), next(NULL), index(index), changed(0), skipped(0) 
+    { 
         reset();
-        if(slot) addvariant(slot);
+        if(slot) addvariant(slot); 
     }
 
     void addvariant(Slot *slot);
@@ -552,7 +550,7 @@ struct Slot
     bool ffenv;
 
     Slot(int index = -1) : index(index), variants(NULL), autograss(NULL), layermaskname(NULL), layermask(NULL) { reset(); }
-
+    
     void reset()
     {
         sts.shrink(0);
@@ -575,7 +573,7 @@ struct Slot
         loaded = false;
         grasstex = NULL;
         thumbnail = NULL;
-        loopv(sts)
+        loopv(sts) 
         {
             Tex &t = sts[i];
             t.t = NULL;

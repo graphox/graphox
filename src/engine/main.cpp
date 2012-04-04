@@ -1,8 +1,19 @@
 // main.cpp: initialisation & main loop
 
 #include "engine.h"
+#include "cube.h"
+#include "../curl/curl.h"
+
+#define curseversion 155
+
+string graphox_version = "1.5 BETA";
+string errormsg;
+
+ICOMMAND(getseversion, "", (), result(graphox_version));
+ICOMMAND(geterrormsg, "", (), result(errormsg));
 
 VARP(defaultload, 0, 0, 1);
+VARP(seupdatecheck, 0, 1, 1);
 
 #ifdef _ENABLE_JOYSTIC_
 VAR(enable_joystick, 0, 0, 1);
@@ -15,9 +26,6 @@ FVAR(joystick_sens, 0, 1.0, 1);
 bool joystick_inited = false;
 SDL_Joystick *joystick;
 #endif
-
-string graphox_version = "2";
-ICOMMAND(getgraphoxversion, "", (), result(graphox_version));
 
 void cleanup()
 {
@@ -43,14 +51,157 @@ void quit()                     // normal exit
 
     writecfg();
 
-    game::writestats();
-
     abortconnect();
     disconnect();
     localdisconnect();
     cleanup();
     exit(EXIT_SUCCESS);
 }
+
+int sev,
+    patchchoosen = -1;
+
+void checkfornewseversion(bool b)
+{
+    if(!seupdatecheck && !b) return;
+    printf("Checking for SauerEnhanced updates");
+    char buf[8];
+    renderprogress(0, "checking for updates (SauerEnhanced)");  //Let user know what's going on...
+    CURL *release = curl_easy_init();
+    CURL *patch = curl_easy_init();
+    CURLcode ret;
+    curl_easy_setopt(release, CURLOPT_URL, "http://www.q009.cba.pl/serelease.txt");    //Here's info about releaes coming from
+    if(!release)
+    {
+        return;
+    }
+    FILE *file = fopen("seDownloads/serelease", "w");   //Create temp file
+    curl_easy_setopt(release, CURLOPT_WRITEDATA, file); //Write info about last release
+    ret = curl_easy_perform(release);
+
+    if (ret != 0)   //Connection problems or file doesn't exists
+    {
+        curl_easy_cleanup(release);
+        copystring(errormsg, "\f3Couldn't check for SauerEnhanced updates\nCan not reach the server.");
+        showgui("Error");
+        fclose(file);
+        remove("seDownloads/serelease");
+        return;
+    }
+    curl_easy_cleanup(release);
+    fclose(file);
+
+    stream *f = openfile("seDownloads/serelease", "r"); //Open temp file
+    f->getline(buf, sizeof(buf));   //Get release no.
+    sscanf(buf, "%d", &sev);    //And write it to memory
+    f->close(); //Close file after analysys...
+    remove("seDownloads/serelease");    //...and remove it
+    if(sev > curseversion) showgui("NewVersion");   //If version is newer show message
+    else    //If there's no new release, check for patches for current release
+    {
+        curl_easy_setopt(patch, CURLOPT_URL, "http://www.q009.cba.pl/sepatchez.txt");
+        if(!patch)
+        {
+            return;
+        }
+        FILE *file = fopen("seDownloads/sepatches", "w");
+        curl_easy_setopt(patch, CURLOPT_WRITEDATA, file);
+        ret = curl_easy_perform(patch);
+
+        if (ret != 0)
+        {
+            curl_easy_cleanup(patch);
+            copystring(errormsg, "\f3Couldn't check for SauerEnhanced updates\nCan not reach the server.");
+            showgui("Error");
+            return;
+        }
+        curl_easy_cleanup(patch);
+        fclose(file);
+
+        stream *f = openfile("seDownloads/sepatches", "r");
+        while(f->getline(buf, sizeof(buf)))
+        {
+            int versionreq, sep;
+            sscanf(buf, "%i %i", &versionreq, &sep);
+            if(versionreq == curseversion)
+            {
+                patchchoosen = sep;
+                break;
+            }
+        }
+        f->close();
+        remove("seDownloads/sepatches");
+        if(patchchoosen > curseversion) showgui("NewPatch");
+        else if(b) showgui("NoUpdates");
+    }
+}
+
+ICOMMAND(chckforups, "", (), { checkfornewseversion(true); } );
+
+void *a; // some fill-in pointer ..
+string filename;
+
+int prog_func(void *a, double dltotal, double dlnow, double ultotal, double ulnow)
+{
+    float bar = dlnow/dltotal;
+    defformatstring(text)("Downloading %s %d%% (%dkb / %dkb)", filename, max(0, int(bar*100)), int(dlnow/1024), int(dltotal/1024));
+    renderprogress(bar, text);
+    return 0;
+}
+
+void getfile(int type)  //Download types: 1: news | 2: release | 3: patch
+{
+    if((type == 2 && (sev < curseversion || sev == -1)) || (type == 3 && (patchchoosen < curseversion || patchchoosen == -1)))
+    {
+        conoutf("You already have latest version!\nThere's no need to download.");
+        return;
+    }
+
+    CURL *handle;
+    CURLcode ret;
+
+    handle = curl_easy_init();
+    if(!handle) return;
+
+    defformatstring(sefile)("SE_%d%s.zip", type==3?patchchoosen:sev, type==3?"_P":"");  //Choose name for file
+    defformatstring(sefilenloc)("seDownloads/%s", sefile);  //Select downloading dir
+    defformatstring(seurl)("http://sourceforge.net/projects/sauerenhanced/files/%s/download", sefile);  //Here are patches/releases coming from
+    string newsurl = "http://www.q009.cba.pl/senews.txt";  //Here are news coming from
+    copystring(filename, type==1?"LastNews":sefile);
+
+    curl_easy_setopt(handle, CURLOPT_URL, type==1?newsurl:seurl);
+
+    FILE *file = fopen(type>1?sefilenloc:filename, type==1?"w":"wb");
+    curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION,1);
+    curl_easy_setopt(handle, CURLOPT_WRITEDATA, file);
+    curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 0L);
+    curl_easy_setopt(handle, CURLOPT_PROGRESSFUNCTION, prog_func);
+    curl_easy_setopt(handle, CURLOPT_PROGRESSDATA, a);
+    ret = curl_easy_perform(handle);
+
+    if (ret != 0)   //Connection problems or file doesn't exists
+    {
+        defformatstring(errormsg2)("\f3Can not download %s.\nFile doesn't exists or couldn't reach the server\nTry again later.", filename);
+        copystring(errormsg, errormsg2);
+        conoutf(errormsg);
+        curl_easy_cleanup(handle);
+        fclose(file);
+        remove(filename);
+        return;
+    }
+    curl_easy_cleanup(handle);
+    fclose(file);
+    if(type==1) //After downloading news
+    {
+        execfile(filename); //Exec downloaded news menu
+        remove(filename);   //Once executed this file won't be needed anymore...
+    }
+
+}
+
+ICOMMAND(getsenews, "", (), getfile(1));
+ICOMMAND(sedownload, "", (), getfile(2));
+ICOMMAND(sepatch, "", (), getfile(3));
 
 void fatal(const char *s, ...)    // failure exit
 {
@@ -407,6 +558,9 @@ void renderbackground(const char *caption, Texture *mapshot, const char *mapname
 			}
 			glEnable(GL_BLEND);
 
+			if(caption) copystring(backgroundtxt, caption);
+			else copystring(backgroundtxt, "");
+
 			if(mapshot || mapname)
 			{
 				if(mapshot && mapshot!=notexture)
@@ -719,7 +873,7 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		if(defaultload == 0)
+		if((theme == 1 || theme == 2 || theme == 3) && defaultload == 0)
 		{
 			settexture("data/themes/se/circle1.png");
 			glPushMatrix();
@@ -775,7 +929,7 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 				  fv1 = 0/64.0f, fv2 = 52/64.0f;
 			if(theme == 1)
 				settexture("data/themes/se/loading_frame.png", 3);
-			if(theme == 2 || theme == 3)
+			if(theme == 2)
 				settexture("data/themes/crash/loading_frame.png", 3);
 			glBegin(GL_TRIANGLE_STRIP);
 			glTexCoord2f(fu1, fv1); glVertex2f(fx,    fy);
@@ -795,7 +949,7 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 			glPopMatrix();
 			if(theme == 1)
 				settexture("data/themes/se/loading_bar.png", 3);
-			if(theme == 2 || theme == 3)
+			if(theme == 2)
 				settexture("data/themes/crash/loading_bar.png", 3);
 			glBegin(GL_QUADS);
 			glTexCoord2f(su1, bv1); glVertex2f(bx,    by);
@@ -1227,10 +1381,6 @@ static void checkmousemotion(int &dx, int &dy)
     }
 }
 
-int current_x;
-int current_y;
-int lasthat;
-
 void checkinput()
 {
     SDL_Event event;
@@ -1287,6 +1437,50 @@ void checkinput()
                 lastbut = event.button.button;
                 break;
 			#ifdef _ENABLE_JOYSTIC_
+
+/*
+keymap 500 J_UP
+keymap 501 J_UP_RIGHT
+keymap 502 J_RIGHT
+keymap 503 J_DOWN_RIGHT
+keymap 504 J_DOWN
+keymap 505 J_LEFT
+keymap 506 J_DOWN_LEFT
+keymap 507 J_UP_LEFT
+
+keymap 510 J_TURN_LEFT
+keymap 511 J_TURN_RIGHT
+
+keymap 515 J_HAT_LEFT
+keymap 516 J_HAT_RIGHT
+keymap 517 J_HAT_UP_LEFT
+keymap 518 J_HAT_UP_RIGHT
+keymap 519 J_HAT_DOWN_LEFT
+keymap 520 J_HAT_DOWN_RIGHT
+keymap 521 J_HAT_UP
+keymap 522 J_HAT_DOWN
+
+keymap 530 J_BUTTON_1
+keymap 531 J_BUTTON_2
+keymap 532 J_BUTTON_3
+keymap 533 J_BUTTON_4
+keymap 534 J_BUTTON_5
+keymap 535 J_BUTTON_6
+keymap 536 J_BUTTON_7
+keymap 537 J_BUTTON_8
+keymap 538 J_BUTTON_9
+keymap 539 J_BUTTON_10
+keymap 540 J_BUTTON_11
+keymap 541 J_BUTTON_12
+keymap 542 J_BUTTON_13
+keymap 543 J_BUTTON_14
+keymap 544 J_BUTTON_15
+keymap 545 J_BUTTON_16
+keymap 546 J_BUTTON_17
+keymap 547 J_BUTTON_18
+keymap 548 J_BUTTON_19
+keymap 549 J_BUTTON_20
+*/
 
 			case SDL_JOYAXISMOTION:
 				#define J_SENS 150
@@ -1482,7 +1676,7 @@ VARFP(clockfix, 0, 0, 1, clockreset());
 #ifdef _ENABLE_JOYSTIC_
 void initjoystick()
 {
-	if(enable_joystick != 1 || joystick_inited == true)
+	if(enable_joystick != 1 or joystick_inited == true)
 		return;
 
 	printf("initiating joystick");
@@ -1496,24 +1690,6 @@ void initjoystick()
 	printf("%s: %d axes, %d buttons, %d balls, %d hats\n", SDL_JoystickName(0), SDL_JoystickNumAxes(joystick), SDL_JoystickNumButtons(joystick), SDL_JoystickNumBalls(joystick), SDL_JoystickNumHats(joystick));
 }
 #endif
-
-void readstats()
-{
-    char buf[64];   //Stats might be long after longer play and i'm afraid of that 32 won't be engough in that situtation
-    int statsdata[2];
-    stream *f = openfile("data/themes/stats", "r");
-    if(!f)
-    {
-        conoutf("error opening stats file");
-        return;
-    }
-    while(f->getline(buf, sizeof(buf)))
-    {
-        sscanf(buf, "stats[%d] = %d", &statsdata[0], &statsdata[1]);
-        game::stats[statsdata[0]] = statsdata[1];
-    }
-    f->close();
-}
 
 int main(int argc, char **argv)
 {
@@ -1532,15 +1708,13 @@ int main(int argc, char **argv)
     #define log(s) puts("init: " s)
 
     initing = INIT_RESET;
-	
-	execfile("init.cfg", false);
     for(int i = 1; i<argc; i++)
     {
         if(argv[i][0]=='-') switch(argv[i][1])
         {
             case 'q': printf("Using home directory: %s\n", &argv[i][2]); sethomedir(&argv[i][2]); break;
             case 'k': printf("Adding package directory: %s\n", &argv[i][2]); addpackagedir(&argv[i][2]); break;
-            case 'r': /* removed, look above */ break;
+            case 'r': execfile(argv[i][2] ? &argv[i][2] : "init.cfg", false); restoredinits = true; break;
             case 'd': dedicated = atoi(&argv[i][2]); if(dedicated<=0) dedicated = 2; break;
             case 'w': scr_w = clamp(atoi(&argv[i][2]), SCR_MINW, SCR_MAXW); if(!findarg(argc, argv, "-h")) scr_h = -1; break;
             case 'h': scr_h = clamp(atoi(&argv[i][2]), SCR_MINH, SCR_MAXH); if(!findarg(argc, argv, "-w")) scr_w = -1; break;
@@ -1574,7 +1748,7 @@ int main(int argc, char **argv)
     }
     initing = NOT_INITING;
 
-//    execfile("mod.cfg");//results in error
+    printf("GraphOX %s\n", graphox_version);
 
     if(dedicated <= 1)
     {
@@ -1604,7 +1778,6 @@ int main(int argc, char **argv)
     initserver(dedicated>0, dedicated>1);  // never returns if dedicated
     ASSERT(dedicated <= 1);
     game::initclient();
-    readstats();
 
     log("video: mode");
     const SDL_VideoInfo *video = SDL_GetVideoInfo();
@@ -1661,8 +1834,7 @@ int main(int argc, char **argv)
     execfile("data/menus.cfg");
     execfile("data/sounds.cfg");
     execfile("data/brush.cfg");
-    execfile("data/themes/commands.cfg");
-    execfile("data/themes/menus.cfg");
+    execfile("data/themes/conf.cfg");
     execfile("mybrushes.cfg", false);
     if(game::savedservers()) execfile(game::savedservers(), false);
 
@@ -1739,11 +1911,8 @@ int main(int argc, char **argv)
         tryedit();
 
         if(lastmillis) game::updateworld();
-        if(!mainmenu) game::statsacc();
 
         checksleep(lastmillis);
-
-        game::dotime();
 
         serverslice(false, 0);
 

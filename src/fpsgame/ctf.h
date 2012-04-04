@@ -3,8 +3,6 @@
 #define ctfteamflag(s) (!strcmp(s, "good") ? 1 : (!strcmp(s, "evil") ? 2 : 0))
 #define ctfflagteam(i) (i==1 ? "good" : (i==2 ? "evil" : NULL))
 
-VARP(goodjob, 0, 0, 1);
-
 #ifdef SERVMODE
 struct ctfservmode : servmode
 #else
@@ -472,7 +470,7 @@ struct ctfclientmode : clientmode
     void drawblip(fpsent *d, float x, float y, float s, int i, bool flagblip)
     {
         flag &f = flags[i];
-
+        
 		if(game::radartheme != 1)
         	settexture(m_hold && (!flagblip || !f.owner || lastmillis%1000 < 500) ? (flagblip ? "packages/hud/blip_neutral_flag.png" : "packages/hud/blip_neutral.png") :
                     ((m_hold ? ctfteamflag(f.owner->team) : f.team)==ctfteamflag(player1->team) ?
@@ -483,7 +481,7 @@ struct ctfclientmode : clientmode
                     ((m_hold ? ctfteamflag(f.owner->team) : f.team)==ctfteamflag(player1->team) ?
                         (flagblip ? "data/themes/hud/blip_blue_flag.png" : "data/themes/hud/blip_blue.png") :
                         (flagblip ? "data/themes/hud/blip_red_flag.png" : "data/themes/hud/blip_red.png")), 3);
-
+		
 		if(game::radartheme != 1)
 			drawblip(d, x, y, s, flagblip ? (f.owner ? f.owner->o : (f.droptime ? f.droploc : f.spawnloc)) : f.spawnloc, flagblip);
 		else
@@ -867,21 +865,9 @@ struct ctfclientmode : clientmode
             defformatstring(ds)("%d", score);
             particle_textcopy(d->abovehead(), ds, PART_TEXT, 2000, 0x32FF64, 4.0f, -8);
         }
-        if(d==player1)
-        {
-            if(m_ctf && !m_protect) game::stats[9]++;
-            else if(m_protect) game::stats[10]++;
-        }
         d->flags = dflags;
         conoutf(CON_GAMEINFO, "%s scored for %s team", d==player1 ? "you" : colorname(d), team==ctfteamflag(player1->team) ? "your" : "the enemy");
         playsound(S_FLAGSCORE);
-		
-		if(goodjob && isteam(player1->team, d->team) && d!=player1)
- 	    {
- 	        defformatstring(msg)("\f4| Good job %s", d->name);
- 	        conoutf(CON_TEAMCHAT, "%s:\f1 %s", colorname(player1), msg);
-			addmsg(N_SAYTEAM, "rcs", player1, msg);
-		}
 
         if(score >= FLAGLIMIT) conoutf(CON_GAMEINFO, "%s team captured %d flags", team==ctfteamflag(player1->team) ? "your" : "the enemy", score);
     }

@@ -5,7 +5,7 @@
 #ifndef _RPGGAME_
 
 	// only need game.h for serverlist sorting
-
+	
 	//TODO: use "-D" define for this
 	#ifdef WIN32
         #include "../fpsgame/game.h" //a_teammate: mastermodesorting 06.03.2011

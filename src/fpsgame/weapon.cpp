@@ -223,7 +223,7 @@ namespace game
         b->bounces++;
         adddecal(DECAL_BLOOD, vec(b->o).sub(vec(surface).mul(b->radius)), surface, 2.96f/b->bounces, bvec(0x60, 0xFF, 0xFF), rnd(4));
     }
-
+    
     #ifdef _GRAPHOX_
 	    #ifdef _G_BEATA_
 	    	extern int MATF_CLIP;
@@ -369,7 +369,6 @@ namespace game
             extern int hitsound;
             if(hitsound && lasthit != lastmillis) playsound(S_HIT);
             lasthit = lastmillis;
-            game::stats[1] += damage;
         }
 
         if(d->type==ENT_INANIMATE)
@@ -637,11 +636,7 @@ namespace game
 
             case GUN_RL:
                 if(muzzleflash && d->muzzle.x >= 0)
-                particle_flare(d->muzzle, d->muzzle, 250, PART_MUZZLE_FLASH2, 0xFFFFFF, 3.0f, d);
-                pspeed = guns[gun].projspeed*4;
-                if(d->type==ENT_AI) pspeed /= 2;
-                newprojectile(from, to, (float)pspeed, local, id, d, gun);
-                break;
+                    particle_flare(d->muzzle, d->muzzle, 250, PART_MUZZLE_FLASH2, 0xFFFFFF, 3.0f, d);
             case GUN_FIREBALL:
             case GUN_ICEBALL:
             case GUN_SLIMEBALL:
@@ -810,8 +805,6 @@ namespace game
         vec from = d->o;
         vec to = targ;
 
-        if(d==player1) game::stats[0]++;
-
         vec unitv;
         float dist = to.dist(from, unitv);
         unitv.div(dist);
@@ -877,7 +870,7 @@ namespace game
     static const char * const gibnames[3] = { "gibs/gib01", "gibs/gib02", "gibs/gib03" };
     static const char * const debrisnames[4] = { "debris/debris01", "debris/debris02", "debris/debris03", "debris/debris04" };
     static const char * const barreldebrisnames[4] = { "barreldebris/debris01", "barreldebris/debris02", "barreldebris/debris03", "barreldebris/debris04" };
-
+         
     void preloadbouncers()
     {
         loopi(sizeof(projnames)/sizeof(projnames[0])) preloadmodel(projnames[i]);

@@ -13,12 +13,13 @@ bool multiplayer(bool msg)
     return val;
 }
 
-void lolrate()
+void setrate(int rate)
 {
-    conoutf("Don't even try");
+   if(!curpeer) return;
+   enet_host_bandwidth_limit(clienthost, rate, rate);
 }
 
-ICOMMAND(rate, "", (), lolrate());
+VARF(rate, 0, 0, 25000, setrate(rate));
 
 void throttle();
 
@@ -106,7 +107,7 @@ void connectserv(const char *servername, int serverport, const char *serverpassw
     }
 
     if(!clienthost)
-        clienthost = enet_host_create(NULL, 2, server::numchannels(), 25000, 25000);
+        clienthost = enet_host_create(NULL, 2, server::numchannels(), rate, rate);
 
     if(clienthost)
     {
@@ -117,9 +118,7 @@ void connectserv(const char *servername, int serverport, const char *serverpassw
 
         game::connectattempt(servername ? servername : "", serverpassword ? serverpassword : "", address);
     }
-    else {
-        conoutf("\f3could not connect to server");
-    }
+    else conoutf("\f3could not connect to server");
 }
 
 void reconnect(const char *serverpassword)
@@ -234,7 +233,7 @@ void gets2c()           // get updates from the server
             connpeer = NULL;
             conoutf("connected to server");
             throttle();
-
+            if(rate) setrate(rate);
             game::gameconnect(true);
             break;
 

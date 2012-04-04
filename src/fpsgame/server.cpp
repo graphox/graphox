@@ -944,7 +944,7 @@ namespace server
     {
         if(authname && !val) return;
         const char *name = "";
-	sendf(ci->clientnum, 1, "ris", N_SERVMSG, "checking your password.");
+		sendf(ci->clientnum, 1, "ris", N_SERVMSG, "checking your password.");
        	loopv(users)
        	{
        		conoutf("setmaster try: %s %s", users[i]->password, pass);
@@ -1577,7 +1577,7 @@ namespace server
             ts.state = CS_DEAD;
             ts.lastdeath = gamemillis;
             // don't issue respawn yet until DEATHMILLIS has elapsed
-            //ts.respawn();
+            // ts.respawn();
         }
     }
 
