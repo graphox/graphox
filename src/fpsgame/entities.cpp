@@ -116,8 +116,38 @@ namespace entities
         addammo(type, d->ammo[type-I_SHELLS+GUN_SG], local);
     }
 
+	void setgun(int type) {
+		switch(type) {
+			case I_SHELLS:
+				gunselect(GUN_SG, player1);
+				break;
+
+			case I_BULLETS:
+				gunselect(GUN_CG, player1);
+				break;
+
+			case I_ROCKETS:
+				gunselect(GUN_RL, player1);
+				break;
+
+			case I_ROUNDS:
+				gunselect(GUN_RIFLE, player1);
+				break;
+
+			case I_GRENADES:
+				gunselect(GUN_GL, player1);
+				break;
+
+			case I_CARTRIDGES:
+				gunselect(GUN_PISTOL, player1);
+				break;
+		}
+	}
+
     // these two functions are called when the server acknowledges that you really
     // picked up the item (in multiplayer someone may grab it before you).
+	
+	VAR(_Graphox_changeweaponpickup, 0, 0, 1);
 
     void pickupeffects(int n, fpsent *d)
     {
@@ -141,6 +171,10 @@ namespace entities
             if(_Graphox_crosshairbump && _Graphox_bumpcrossonpickup) crosshairbump();
             switch(type)
             {
+                case I_SHELLS: case I_BULLETS: case I_ROCKETS: case I_ROUNDS: case I_GRENADES: case I_CARTRIDGES:
+					if(_Graphox_changeweaponpickup) setgun(type);
+                    break;
+
                 case I_BOOST:
                     conoutf(CON_GAMEINFO, "\f2you have a permanent +10 health bonus! (%d)", d->maxhealth);
                     playsound(S_V_BOOST, NULL, NULL, 0, 0, -1, 0, 3000);
