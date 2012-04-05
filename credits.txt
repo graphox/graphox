@@ -22,7 +22,13 @@
 
 
 
-*/ Bullet
+*// ENHANCED ZOOM
+
+	Taken from Red Eclipse, original available here: http://www.quadropolis.us/node/2680
+
+
+
+*// BULLET
 
 	Bullet is a 3D Collision Detection and Rigid Body Dynamics Library for games and animation.
 	not used, YET. -> dadadada
