@@ -1,3 +1,4 @@
+#define G_NO_SCRIPTING
 
 #ifndef GRAPHOX_CPP
 #define GRAPHOX_CPP
@@ -11,4 +12,5 @@
 		#include "graphox/js.cpp"
 	#endif
 
+	#include "graphox/theme.cpp"
 #endif

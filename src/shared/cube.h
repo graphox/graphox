@@ -74,5 +74,7 @@
 #include "iengine.h"
 #include "igame.h"
 
+#include "graphox/graphox.h"
+
 #endif
 

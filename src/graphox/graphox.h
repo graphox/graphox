@@ -1,3 +1,4 @@
+#define G_NO_SCRIPTING
 
 #ifndef GRAPHOX_H
 #define GRAPHOX_H
@@ -9,6 +10,8 @@
 	#include "graphox/scripting.h"
 	#include "graphox/js.h"
 #endif
+
+#include "graphox/theme.h"
 
 namespace graphox
 {

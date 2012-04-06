@@ -473,3 +473,11 @@ extern int sortbythat; //a_teammate 26.02.2011
 extern int kmode;
 extern int kmaster;
 
+struct Shader;
+
+extern int sdl_backingstore_bug;
+extern void restorebackground();
+extern void getbackgroundres(int &w, int &h);
+extern Shader *defaultshader;
+extern SDL_Surface *screen;
+

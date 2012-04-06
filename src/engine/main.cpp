@@ -2,7 +2,8 @@
 
 #include "engine.h"
 #include "cube.h"
-#include "graphox/init.cpp"
+
+//#include "graphox/init.cpp"
 
 VARP(defaultload, 0, 0, 1);
 
@@ -552,16 +553,19 @@ float loadprogress = 0;
 
 void renderprogress(float bar, const char *text, GLuint tex, bool background)   // also used during loading
 {
-	if(theme == 0)
-		{
-		if(!inbetweenframes || envmapping) return;
+	if(!inbetweenframes || envmapping) return;
 
-		clientkeepalive();      // make sure our connection doesn't time out while loading maps etc.
+	clientkeepalive();      // make sure our connection doesn't time out while loading maps etc.
 
-		#ifdef __APPLE__
+	#ifdef __APPLE__
 		interceptkey(SDLK_UNKNOWN); // keep the event queue awake to avoid 'beachball' cursor
-		#endif
+	#endif
 
+	graphox::theme::render_loading_screen(bar, text, tex, background);
+	
+	return;
+
+#if 0
 		extern int sdl_backingstore_bug;
 		if(background || sdl_backingstore_bug > 0) restorebackground();
 
@@ -880,6 +884,7 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 		glPopMatrix();
 		swapbuffers();
 	}
+#endif
 }
 
 void keyrepeat(bool on)
@@ -1607,8 +1612,8 @@ int main(int argc, char **argv)
     ASSERT(dedicated <= 1);
     game::initclient();
     
-    log("graphox");
-    graphox::init();
+    //log("graphox");
+    //graphox::init();
 
 	log("stats: read");
 	readstats();

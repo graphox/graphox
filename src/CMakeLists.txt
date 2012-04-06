@@ -56,7 +56,6 @@ link_directories(${CMAKE_SOURCE_DIR}/src/third_party/v8)
 #target_link_libraries(${CUBE2_GAME} ${CUBE2_TOOLS} ${CUBE2_ENGINE})
 
 add_executable(graphox_client
-
 	shared/cube.h
 	
 	engine/engine.h
@@ -168,7 +167,7 @@ add_executable(graphox_client
 	shared/zip.cpp
 
 	graphox/graphox.cpp
-	
+
 	#third_party/javascript/script_engine_v8.cpp
 
 	#graphox/init.cpp	
