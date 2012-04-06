@@ -1,6 +1,8 @@
 // main.cpp: initialisation & main loop
 
 #include "engine.h"
+#include "cube.h"
+#include "graphox/init.cpp"
 
 VARP(defaultload, 0, 0, 1);
 
@@ -1604,6 +1606,9 @@ int main(int argc, char **argv)
     initserver(dedicated>0, dedicated>1);  // never returns if dedicated
     ASSERT(dedicated <= 1);
     game::initclient();
+    
+    log("graphox");
+    graphox::init();
 
 	log("stats: read");
 	readstats();

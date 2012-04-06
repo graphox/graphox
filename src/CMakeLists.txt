@@ -167,9 +167,11 @@ add_executable(graphox_client
 	shared/tools.cpp
 	shared/zip.cpp
 
+	graphox/graphox.cpp
+	
 	#third_party/javascript/script_engine_v8.cpp
 
-	graphox/init.cpp	
+	#graphox/init.cpp	
 	#graphox/svn.cpp
 	#graphox/repo.cpp
 	

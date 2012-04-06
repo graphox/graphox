@@ -1,8 +1,13 @@
+#ifndef GRAPHOX_INIT_CPP
+#define GRAPHOX_INIT_CPP
+
 #include "graphox/extern.h"
 
-#ifndef GRAPHOX_DISALE_SVN	
-	#include "graphox/repo.h"
+#ifndef GRAPHOX_DISABLE_SVN	
+//	#include "graphox/repo.h"
 #endif
+
+//#include "graphox/graphox.h"
 
 //#include "script_engine_v8.h"
 
@@ -11,7 +16,9 @@ namespace graphox
 {
 	void init()
 	{
-		conoutf("adding repo/graphox");
+		conoutf("adding default repos");
+		addpackagedir("repo/ref");
+		//addpackagedir("repo/justice");
 		addpackagedir("repo/graphox");
 	}
 	
@@ -26,37 +33,6 @@ namespace graphox
 	}
 }
 
-#include <v8.h>
 
-using namespace v8;
 
-int run()
-{
-
-  // Create a stack-allocated handle scope.
-  HandleScope handle_scope;
-
-  // Create a new context.
-  Persistent<Context> context = Context::New();
-  
-  // Enter the created context for compiling and
-  // running the hello world script. 
-  Context::Scope context_scope(context);
-
-  // Create a string containing the JavaScript source code.
-  Handle<String> source = String::New("'Hello' + ', World!'");
-
-  // Compile the source code.
-  Handle<Script> script = Script::Compile(source);
-  
-  // Run the script to get the result.
-  Handle<Value> result = script->Run();
-  
-  // Dispose the persistent context.
-  context.Dispose();
-
-  // Convert the result to an ASCII string and print it.
-  String::AsciiValue ascii(result);
-  printf("%s\n", *ascii);
-  return 0;
-};
+#endif
