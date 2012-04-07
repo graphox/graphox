@@ -3,8 +3,6 @@
 #include "engine.h"
 #include "cube.h"
 
-//#include "graphox/init.cpp"
-
 VARP(defaultload, 0, 0, 1);
 
 #ifdef _ENABLE_JOYSTIC_
@@ -553,6 +551,7 @@ float loadprogress = 0;
 
 void renderprogress(float bar, const char *text, GLuint tex, bool background)   // also used during loading
 {
+#if 0
 	if(!inbetweenframes || envmapping) return;
 
 	clientkeepalive();      // make sure our connection doesn't time out while loading maps etc.
@@ -565,7 +564,9 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 	
 	return;
 
-#if 0
+#else
+	if(true)
+	{
 		extern int sdl_backingstore_bug;
 		if(background || sdl_backingstore_bug > 0) restorebackground();
 
@@ -1524,7 +1525,12 @@ void readstats()
 
 int main(int argc, char **argv)
 {
-    #ifdef WIN32
+	//graphox::engineinfo_set<int &>("sdl_backingstore_bug", &sdl_backingstore_bug);
+
+	graphox::scripting::init();
+	graphox::scripting::execute("init.lua");
+	
+	#ifdef WIN32
     //atexit((void (__cdecl *)(void))_CrtDumpMemoryLeaks);
     #ifndef _DEBUG
     #ifndef __GNUC__

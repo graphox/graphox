@@ -33,6 +33,16 @@ namespace graphox
 		{
 			printf("%s", message);
 		}
+		
+		void init()
+		{
+			graphox::scripting::lua::init();
+		};
+		
+		void execute(const char *file)
+		{
+			graphox::scripting::lua::execute(file);
+		};
 	}
 }
 #endif

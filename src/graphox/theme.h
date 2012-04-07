@@ -1,4 +1,4 @@
-#ifndef GRAPHOX_THEME_H
+#if 0 //ndef GRAPHOX_THEME_H
 #define GRAPHOX_THEME_H
 
 #include "graphox.h"

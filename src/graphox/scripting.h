@@ -40,6 +40,9 @@ namespace graphox
 		};
 		
 		void print(const char *message);
+		
+		void init();
+		void execute(const char *name);
 	}
 }
 #endif

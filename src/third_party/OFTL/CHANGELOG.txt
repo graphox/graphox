@@ -1,0 +1,55 @@
+December 11, 2011, version 0.8.3
+    - much improved Lua binding system (native function support)
+    - utils::forward, utils::move
+    - new tuple container
+
+December 01, 2011, version 0.8.2
+    - convertible Lua types, test runner changes
+    - module registration support
+
+November 27, 2011, version 0.8.1
+    - Lua table iterators
+    - Remove some asserts in the Lua module and instead handle things properly.
+    - Modify some things in the stack namespace so you can get / pop just part
+      of the stack instead of the whole stack.
+    - Add some Lua examples.
+
+November 26, 2011, version 0.8.0
+    - new Lua interface module (on top of native Lua API)
+    - introduction of C++11 into the library (for now only in the Lua module),
+      only features introduced prior to G++ 4.4 (variadic templates)
+    - file layout reorganization
+    - various cleanups
+
+November 12, 2011, version 0.5.0
+    - new filesystem module (POSIX + Windows)
+    - support for erasing in strings (position and iterator based)
+
+October 23, 2011, version 0.3.0
+    - conformance to the new OFTL coding conventions
+    - new unit testing system
+    - bug fixes
+
+October 19, 2011, version 0.2.5
+    - reorganized algorithm library
+    - functor library
+    - new containers: hashmap, hashset
+
+October 14, 2011, version 0.2.0
+    - pseudorandom number generator
+    - completely header based
+    - c++98 standard conformance, cleanups
+
+October 09, 2011, version 0.1.5
+    - unified iterators
+    - basic algorithms (sorting ...)
+    - iterator traits
+    - reverse iterators
+    - fixes, others
+
+October 03, 2011, version 0.1.1
+    - cleanups, vector optimizations
+
+October 02, 2011, version 0.1.0
+    - first push, including list, map, set, shared_ptr, stack, string,
+    - type traits, utilities and vector; basic tests.

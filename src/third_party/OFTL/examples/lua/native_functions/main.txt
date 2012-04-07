@@ -1,0 +1,25 @@
+1: 5 / 5.000000
+2: foo
+3: 1
+4: 3 / 3.140000
+5: hey
+6: function, calling ...
+    hello world!
+7: 5 / 5.000000
+Setting up and calling native Lua C API function...
+Function exposed with the Lua C API..
+First argument: some string
+This will return one value (5).
+retval: 5
+Function with native arguments!
+arg a: 134
+arg b: 1
+arg c: hello!
+arg d: 6.280000
+arg e: a string
+arg f: calling ..
+ hello world!
+retvals: 5 134.300003
+RETS:  5 foo
+ERROR: 0 (null)
+LOG: Something bad happened that was supposed to happen.

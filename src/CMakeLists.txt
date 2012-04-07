@@ -1,4 +1,8 @@
 
+set(G_COMPILE_TYPE SHARED CACHE INTERNAL "shared of static libs?")
+
+cmake_policy(SET CMP0012 NEW)
+
 include_directories(
 	${CURRENT_SOURCE_DIR}
 	.
@@ -19,6 +23,9 @@ include_directories(
 
 include(CheckLibraryExists)
 
+include(FindLua51)
+include(FindPythonLibs)
+
 check_library_exists(z gzopen "" ZLIB_EXISTS)
 find_package(OpenGL REQUIRED)
 find_package(SDL REQUIRED)
@@ -31,16 +38,74 @@ if(NOT ${ZLIB_EXISTS})
     message(FATAL_ERROR "missing required library: ZLIB")
 endif(NOT ${ZLIB_EXISTS})
 
+if(NOT ${LUA51_FOUND})
+	message("missing required library: LUA 5.1, trying 5.0")
+	
+	include(FindLua50)
+	
+	if(NOT ${LUA50_FOUND})
+		message(FATAL_ERROR "missing required library: LUA 5.0 and 5.1")
+	endif(NOT ${LUA50_FOUND})
+	add_definitions(-DG_LUA_50)
+else(NOT ${LUA51_FOUND})
+
+	add_definitions(-DG_LUA_51)
+endif(NOT ${LUA51_FOUND})
+
+if(NOT ${PYTHONLIBS_FOUND})
+	message(FATAL_ERROR "missing required library: PYTHON")
+endif(NOT ${PYTHONLIBS_FOUND})
+
 add_definitions(
 	-D_C2_DISABLE_UINTPTR_T_
 	-DSDL_VIDEO_DRIVER_X11 #TODO: make this unneeded
 	-DGRAPHOX_DISALE_SVN #don't forget to uncomment the cpp files	
 ) #TODO: scan system
 
-add_subdirectory(enet)
 add_subdirectory(third_party)
 
-include_directories(${CMAKE_SOURCE_DIR}/src/third_party/v8/include)
+include_directories(
+	${CMAKE_SOURCE_DIR}/src/third_party/v8/include
+	${LUA_INCLUDE_DIR}
+	${PYTHON_INCLUDE_PATH}
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include
+
+	${JANSSON_INCLUDE_DIRS}
+)
+
+set(OFTL
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/new.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/utils.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/traits.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/algorithm.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/functional.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/iterator.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/string.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/stdio.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/pair.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/hashmap.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/hashset.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/map.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/set.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/vector.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/shared_ptr.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/random.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/filesystem.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/list.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/tuple.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/base.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/function.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/dynamic.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/table.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/state.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/stack.h
+	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/src/filesystem/platform_posix.cpp
+)
+
+add_library(OFTL ${G_COMPILE_TYPE} ${OFTL})
+target_link_libraries(OFTL ${LUA_LIBRARIES})
+
 link_directories(${CMAKE_SOURCE_DIR}/src/third_party/v8)
 
 #due to sauer's bad design this is IMPOSSIBLE:
@@ -166,8 +231,6 @@ add_executable(graphox_client
 	shared/tools.cpp
 	shared/zip.cpp
 
-	graphox/graphox.cpp
-
 	#third_party/javascript/script_engine_v8.cpp
 
 	#graphox/init.cpp	
@@ -179,6 +242,31 @@ add_executable(graphox_client
 
 )
 
+add_definitions(-std=c++0x -fpermissive)
+add_library(graphox ${G_COMPILE_TYPE}
+	graphox/graphox.cpp
+)
+
+target_link_libraries(graphox
+    ${SDL_LIBRARY}
+    ${SDLMIXER_LIBRARY}
+    ${SDLIMAGE_LIBRARY}
+    ${SDLSOUND_LIBRARY}
+    ${OPENGL_LIBRARIES}
+    ${ZLIB_LIBRARIES}
+	${ENET_LIBRARY}
+	${LUA_LIBRARIES}
+	${PYTHON_LIBRARIES}
+	${JANSON_LIBRARY}
+	
+	OFTL	
+	svncpp
+	svn_client-1
+	v8
+	#-lrt
+	-lz
+)
+
 target_link_libraries(graphox_client
     ${SDL_LIBRARY}
     ${SDLMIXER_LIBRARY}
@@ -187,14 +275,26 @@ target_link_libraries(graphox_client
     ${OPENGL_LIBRARIES}
     ${ZLIB_LIBRARIES}
 	${ENET_LIBRARY}
+	${LUA_LIBRARIES}
+	${PYTHON_LIBRARIES}
+	
+	graphox
 	svncpp
 	svn_client-1
 	v8
-	-lrt  -lz
+	-lrt -lz
 )
 
-INSTALL(TARGETS graphox_client
-  RUNTIME DESTINATION ${INSTALL_RUNTIME_DIR}
-  LIBRARY DESTINATION ${INSTALL_LIBRARY_DIR}
-  ARCHIVE DESTINATION ${INSTALL_RUNTIME_DIR}
+INSTALL(
+	TARGETS
+		graphox_client
+		OFTL
+		graphox
+	RUNTIME DESTINATION
+		${INSTALL_RUNTIME_DIR}
+	LIBRARY DESTINATION
+		${INSTALL_LIBRARY_DIR}
+	ARCHIVE DESTINATION
+		${INSTALL_RUNTIME_DIR}
 )
+

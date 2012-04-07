@@ -1,16 +1,34 @@
-#ifndef GRAPHOX_THEME_CPP
+#if 0
+//#ifndef GRAPHOX_THEME_CPP
 #define GRAPHOX_THEME_CPP
 
 #include "theme.h"
-#include "engine.h"
+//#include "engine.h"
 
 namespace graphox
 {
+	types::Map<const char *, void *> engineinfo;
+	
+	template<typename T>
+	void engineinfo_set(const char *name, T &info)
+	{
+		engineinfo[name] = (void *)info;
+	}
+	
+	template<typename T>
+	T get(const char *name)
+	{
+		return (T) engineinfo["name"];
+	}
+	
 	namespace theme
 	{
 		void loading_theme::render(float bar, const char *text, GLuint tex, bool background)
 		{
-			if(background || sdl_backingstore_bug > 0) restorebackground();
+			#if 0
+			if(background || graphox::get<int>("sdl_backingstore_bug") > 0)
+				restorebackground();
+			#endif
 
 			int w = screen->w, h = screen->h;
 			

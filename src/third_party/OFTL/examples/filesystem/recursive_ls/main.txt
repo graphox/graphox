@@ -1,0 +1,64 @@
+No argument provided, listing cwd.
++ subdir1
+    - file2.txt
+    + subdir1
+        - file1.txt
+        - file2.txt
+        - file3.txt
+    - file1.txt
+    + subdir2
+        - file1.txt
+        + subdir3
+            - file1.txt
+            - file2.txt
+            - file4.txt
+            - file3.txt
+        + subdir2
+            - file1.txt
+        + subdir1
+            - file2.txt
+            - file1.txt
+- file2.txt
+- main
++ subdir2
+    - file1.txt
+    + subdir1
+        + subdir1
+            + subdir1
+                - file2.txt
+                - file3.txt
+                - file1.txt
+            - file1.txt
+            + subdir2
+                - file1.txt
+            - file2.txt
+        - file1.txt
+    + subdir2
+        - file1.txt
+        - file2.txt
+- file3.txt
+- main.txt
+- main.cpp
+- file1.txt
++ subdir3
+    + subdir2
+        - file3.txt
+        - file2.txt
+        - file1.txt
+    - file2.txt
+    + subdir1
+        - file2.txt
+        - file1.txt
+    - file3.txt
+    + subdir4
+        - file1.txt
+    + subdir3
+        + subdir2
+            - file1.txt
+            - file3.txt
+            - file2.txt
+        + subdir1
+            - file2.txt
+            - file1.txt
+        - file1.txt
+    - file1.txt
