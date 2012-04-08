@@ -15,6 +15,7 @@
 #endif
 
 #include "graphox/theme.h"
+#include "graphox/filesystem.h"
 
 namespace graphox
 {

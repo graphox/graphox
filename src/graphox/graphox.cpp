@@ -6,6 +6,8 @@
 	#include "OFTL/map.h"
 	#include "OFTL/hashmap.h"
 	#include "OFTL/filesystem.h"
+	
+	#include <unistd.h>
 
 	#include "graphox/graphox.h"
 	
@@ -25,4 +27,5 @@
 	#endif
 
 	#include "graphox/theme.cpp"
+	#include "graphox/filesystem.cpp"
 #endif

@@ -177,6 +177,17 @@ const char *findfile(const char *filename, const char *mode)
         formatstring(s)("%s%s", packagedirs[i], filename);
         if(fileexists(s, mode)) return s;
     }
+    
+    try
+    {
+    	return graphox::filesystem::locate(filename);
+    }
+    catch(graphox::Exception *e)
+    {
+    	puts("graphox locate failed:");
+    	e->print();
+    }
+    
     return filename;
 }
 

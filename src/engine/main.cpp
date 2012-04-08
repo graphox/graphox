@@ -551,6 +551,7 @@ float loadprogress = 0;
 
 void renderprogress(float bar, const char *text, GLuint tex, bool background)   // also used during loading
 {
+	puts("render");
 #if 0
 	if(!inbetweenframes || envmapping) return;
 
@@ -565,8 +566,10 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 	return;
 
 #else
+#if 0
 	if(true)
 	{
+
 		extern int sdl_backingstore_bug;
 		if(background || sdl_backingstore_bug > 0) restorebackground();
 
@@ -591,7 +594,7 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 			  fy = renderedframe ? fh/4 : h - fh*1.5f,
 			  fu1 = 0/512.0f, fu2 = 511/512.0f,
 			  fv1 = 0/64.0f, fv2 = 52/64.0f;
-		settexture("data/loading_frame.png", 3);
+		//settexture("data/loading_frame.png", 3);
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(fu1, fv1); glVertex2f(fx,    fy);
 		glTexCoord2f(fu2, fv1); glVertex2f(fx+fw, fy);
@@ -674,10 +677,13 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
 		swapbuffers();
+		puts("renderdone");
+
 	}
 
 	if(theme == 1 || theme == 2 || theme == 3)
 	{
+#endif
 		if(!inbetweenframes || envmapping) return;
 
 		clientkeepalive();      // make sure our connection doesn't time out while loading maps etc.
@@ -884,7 +890,9 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
 		swapbuffers();
+#if 0
 	}
+#endif
 #endif
 }
 
