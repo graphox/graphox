@@ -264,7 +264,6 @@ target_link_libraries(graphox
 	svncpp
 	svn_client-1
 	v8
-	cegui
 	#-lrt
 	-lz
 )
