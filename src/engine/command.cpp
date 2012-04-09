@@ -712,11 +712,11 @@ int execute(const char *p)
     return i;
 }
 
-bool execfile(const char *cfgfile, bool msg)
+bool rawexecfile(const char *cfgfile, bool msg)
 {
     string s;
     copystring(s, cfgfile);
-    char *buf = loadfile(path(s), NULL);
+    char *buf = loadfile(cfgfile, NULL);
     if(!buf)
     {
         if(msg) conoutf(CON_ERROR, "could not read \"%s\"", cfgfile);
@@ -725,6 +725,12 @@ bool execfile(const char *cfgfile, bool msg)
     execute(buf);
     delete[] buf;
     return true;
+
+}
+
+bool execfile(const char *cfgfile, bool msg)
+{
+	return rawexecfile(path(cfgfile), msg);
 }
 
 #ifndef STANDALONE

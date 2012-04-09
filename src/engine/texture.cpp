@@ -819,6 +819,8 @@ SDL_Surface *loadsurface(const char *name)
         delete z;
     }
     if(!s) s = IMG_Load(findfile(name, "rb"));
+    if(!s) s = IMG_Load(name);
+    if(!s) printf("Error While loading image: %s\n", IMG_GetError());
     return fixsurfaceformat(s);
 }
 
@@ -840,7 +842,7 @@ VAR(dbgdds, 0, 0, 1);
 
 static bool texturedata(ImageData &d, const char *tname, Slot::Tex *tex = NULL, bool msg = true, int *compress = NULL)
 {
-    const char *cmds = NULL, *file = tname;
+    const char *cmds = NULL, *file = findfile(tname, "r");
 
     if(!tname)
     {
@@ -849,7 +851,7 @@ static bool texturedata(ImageData &d, const char *tname, Slot::Tex *tex = NULL, 
         {
             cmds = tex->name;
             file = strrchr(tex->name, '>');
-            if(!file) { if(msg) conoutf(CON_ERROR, "could not load texture packages/%s", tex->name); return false; }
+            if(!file) { if(msg) conoutf(CON_ERROR, "could not load texture packages/%s (1)", tex->name); return false; }
             file++;
         }
         else file = tex->name;
@@ -862,7 +864,7 @@ static bool texturedata(ImageData &d, const char *tname, Slot::Tex *tex = NULL, 
     {
         cmds = tname;
         file = strrchr(tname, '>');
-        if(!file) { if(msg) conoutf(CON_ERROR, "could not load texture %s", tname); return NULL; }
+        if(!file) { if(msg) conoutf(CON_ERROR, "could not load texture %s (2)", tname); return NULL; }
         file++;
     }
 
@@ -909,11 +911,11 @@ static bool texturedata(ImageData &d, const char *tname, Slot::Tex *tex = NULL, 
         copystring(dfile, file);
         memcpy(dfile + flen - 4, ".dds", 4);
         if(!raw && hasTC && loaddds(dfile, d)) return true;
-        if(!dds || dbgdds) { if(msg) conoutf(CON_ERROR, "could not load texture %s", dfile); return false; }
+        if(!dds || dbgdds) { if(msg) conoutf(CON_ERROR, "could not load texture %s (3)", dfile); return false; }
     }
 
     SDL_Surface *s = loadsurface(file);
-    if(!s) { if(msg) conoutf(CON_ERROR, "could not load texture %s", file); return false; }
+    if(!s) { if(msg) conoutf(CON_ERROR, "could not load texture %s (4)", file); return false; }
     int bpp = s->format->BitsPerPixel;
     if(bpp%8 || !texformat(bpp/8)) { SDL_FreeSurface(s); conoutf(CON_ERROR, "texture must be 8, 16, 24, or 32 bpp: %s", file); return false; }
     if(max(s->w, s->h) > (1<<12)) { SDL_FreeSurface(s); conoutf(CON_ERROR, "texture size exceeded %dx%d pixels: %s", 1<<12, 1<<12, file); return false; }

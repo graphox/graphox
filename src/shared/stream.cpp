@@ -40,6 +40,7 @@ char *makerelpath(const char *dir, const char *file, const char *prefix, const c
 
 char *path(char *s)
 {
+/*
     for(char *curpart = s;;)
     {
         char *endpart = strchr(curpart, '&');
@@ -75,6 +76,7 @@ char *path(char *s)
         }
         else break;
     }
+    */
     return s;
 }
 
@@ -151,7 +153,9 @@ void addpackagedir(const char *dir)
 
 const char *findfile(const char *filename, const char *mode)
 {
+	
     static string s;
+    /*
     if(homedir[0])
     {
         formatstring(s)("%s%s", homedir, filename);
@@ -170,22 +174,37 @@ const char *findfile(const char *filename, const char *mode)
             }
             return s;
         }
-    }
+    }*/
     if(mode[0]=='w' || mode[0]=='a') return filename;
+    /*
     loopv(packagedirs)
     {
         formatstring(s)("%s%s", packagedirs[i], filename);
         if(fileexists(s, mode)) return s;
     }
+    */
     
     try
     {
-    	return graphox::filesystem::locate(filename);
+		//printf("We're looking for : %s\n", filename);
+    	//char *name;
+    	//copystring(name, filename);
+    	const char *new_filename = graphox::filesystem::locate(filename);
+    	
+    	//printf("| findfile: \"%s\"\n", new_filename);
+    	
+    	
+    	formatstring(s)("%s", new_filename);
+    	
+    	delete new_filename;
+    	
+    	return s;
     }
     catch(graphox::Exception *e)
     {
-    	puts("graphox locate failed:");
+    	//puts("graphox locate failed:");
     	e->print();
+    	delete[] e;
     }
     
     return filename;
@@ -636,9 +655,18 @@ struct gzstream : stream
 stream *openrawfile(const char *filename, const char *mode)
 {
     const char *found = findfile(filename, mode);
+    
+    //printf("Openrawfile(\"%s\");\n",  found);
+    
     if(!found) return NULL;
     filestream *file = new filestream;
-    if(!file->open(found, mode)) { delete file; return NULL; }
+    if(!file->open(found, mode))
+    {
+    	//delete found;
+    	delete file;
+    	return NULL;
+    }
+   	//delete found;
     return file;
 }
 
@@ -655,7 +683,15 @@ stream *opentempfile(const char *name, const char *mode)
 {
     const char *found = findfile(name, mode);
     filestream *file = new filestream;
-    if(!file->opentemp(found ? found : name, mode)) { delete file; return NULL; }
+    
+    if(!file->opentemp(found ? found : name, mode))
+    {
+    //	delete found;
+    	delete file;
+    	return NULL;
+    }
+    
+    //delete found
     return file;
 }
 

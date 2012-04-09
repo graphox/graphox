@@ -118,6 +118,7 @@ extern bool addcommand(const char *name, void (*fun)(), const char *narg);
 extern int execute(const char *p);
 extern char *executeret(const char *p);
 extern bool execfile(const char *cfgfile, bool msg = true);
+extern bool rawexecfile(const char *cfgfile, bool msg = true);
 extern void alias(const char *name, const char *action);
 extern const char *getalias(const char *name);
 

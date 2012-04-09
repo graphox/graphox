@@ -19,6 +19,7 @@ include_directories(
 	/usr/include/svncpp
 	/usr/include/subversion-1
 	/usr/include/apr-1.0
+	/usr/include/CEGUI
 )
 
 include(CheckLibraryExists)
@@ -263,6 +264,7 @@ target_link_libraries(graphox
 	svncpp
 	svn_client-1
 	v8
+	cegui
 	#-lrt
 	-lz
 )

@@ -6,7 +6,7 @@ namespace graphox
 {
 	namespace filesystem
 	{
-		const char *locate(const char *fname);
+		char *locate(const char *fname);
 		
 		#ifdef OFTL
 		types::String *locate();

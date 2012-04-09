@@ -171,16 +171,22 @@ void restorebackground()
     renderbackground(backgroundcaption[0] ? backgroundcaption : NULL, backgroundmapshot, backgroundmapname[0] ? backgroundmapname : NULL, backgroundmapinfo, true);
 }
 
+int font_loaded_theme = -1;
 void renderbackground(const char *caption, Texture *mapshot, const char *mapname, const char *mapinfo, bool restore, bool force)
 {
-    if(theme == 0)
-        if(!execfile("data/font.cfg", false)) fatal("cannot find font definitions");
-    if(theme == 1)
-        if(!execfile("data/themes/se/font.cfg", false)) fatal("cannot find font definitions");
-    if(theme == 2)
-        if(!execfile("data/themes/crash/font.cfg", false)) fatal("cannot find font definitions");
-    if(theme == 3)
-        if(!execfile("data/themes/red eclipse/font.cfg", false)) fatal("cannot find font definitions");
+	if(font_loaded_theme != theme)
+	{
+		if(theme == 0)
+		    if(!execfile("data/font.cfg", false)) fatal("cannot find font definitions");
+		if(theme == 1)
+		    if(!execfile("data/themes/se/font.cfg", false)) fatal("cannot find font definitions");
+		if(theme == 2)
+		    if(!execfile("data/themes/crash/font.cfg", false)) fatal("cannot find font definitions");
+		if(theme == 3)
+		    if(!execfile("data/themes/red eclipse/font.cfg", false)) fatal("cannot find font definitions");
+		    
+		font_loaded_theme = theme;
+	}
 
 	if(theme == 0)
 	{
@@ -1655,7 +1661,17 @@ int main(int argc, char **argv)
 
     log("console");
     persistidents = false;
-    if(!execfile("data/stdlib.cfg", false)) fatal("cannot find data files (you are running from the wrong folder, try .bat file in the main folder)");   // this is the first file we load.
+    
+    if(!rawexecfile("data/stdlib.cfg", true))
+    #ifdef WIN32
+    	fatal("cannot find data files did you get a virus again since you are on windows or are you just running from the wrong folder? try to run the .bat file in the main folder to solve the problem.");   // this is the first file we load.
+    #else
+    	#if defined(__MAC__)
+    		fatal("Donate now to solve this problem (since you have a mack you must swim in cashto by useless shit for much money) thank you :) (or just run from the right folder");
+    	#else
+    		fatal("Please run from the correct folder, so run the sauerbraten_unix file like ./sauerbraten_unix when in the main folder");
+    	#endif
+    #endif
     if(theme == 0)
         if(!execfile("data/font.cfg", false)) fatal("cannot find font definitions");
     if(theme == 1)

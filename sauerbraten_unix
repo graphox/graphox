@@ -18,7 +18,7 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:bin:lib"
 if [ -x ${SAUER_BIN}/graphox_client ]
 then
   cd ${SAUER_DATA}
-  gdb -batch -x ${SAUER_BIN}/graphox_client --args "${SAUER_OPTIONS} \"$@\""
+  ${SAUER_BIN}/graphox_client ${SAUER_OPTIONS} "$@"
 else
   echo "Your platform does not have a pre-compiled Sauerbraten client."
   echo "Please follow the following steps to build a native client:"
