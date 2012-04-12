@@ -19,13 +19,13 @@ include_directories(
 	/usr/include/svncpp
 	/usr/include/subversion-1
 	/usr/include/apr-1.0
-	/usr/include/CEGUI
 )
 
 include(CheckLibraryExists)
 
 include(FindLua51)
 include(FindPythonLibs)
+include(FindDevIL)
 
 check_library_exists(z gzopen "" ZLIB_EXISTS)
 find_package(OpenGL REQUIRED)
@@ -57,6 +57,10 @@ if(NOT ${PYTHONLIBS_FOUND})
 	message(FATAL_ERROR "missing required library: PYTHON")
 endif(NOT ${PYTHONLIBS_FOUND})
 
+if(NOT ${IL_FOUND})
+	message(FATAL_ERROR "missing required library: DEVIL")
+endif(NOT ${IL_FOUND})
+
 add_definitions(
 	-D_C2_DISABLE_UINTPTR_T_
 	-DSDL_VIDEO_DRIVER_X11 #TODO: make this unneeded
@@ -70,7 +74,7 @@ include_directories(
 	${LUA_INCLUDE_DIR}
 	${PYTHON_INCLUDE_PATH}
 	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include
-
+	${IL_INCLUDE_DIR}
 	${JANSSON_INCLUDE_DIRS}
 )
 
@@ -259,7 +263,10 @@ target_link_libraries(graphox
 	${LUA_LIBRARIES}
 	${PYTHON_LIBRARIES}
 	${JANSON_LIBRARY}
-	
+	${IL_LIBRARIES}
+	${ILU_LIBRARIES}
+	${ILUT_LIBRARIES}
+
 	OFTL	
 	svncpp
 	svn_client-1
@@ -276,13 +283,13 @@ target_link_libraries(graphox_client
     ${OPENGL_LIBRARIES}
     ${ZLIB_LIBRARIES}
 	${ENET_LIBRARY}
-	${LUA_LIBRARIES}
-	${PYTHON_LIBRARIES}
-	
+#	${LUA_LIBRARIES}
+#	${PYTHON_LIBRARIES}
+
 	graphox
-	svncpp
-	svn_client-1
-	v8
+#	svncpp
+#	svn_client-1
+#	v8
 	-lrt -lz
 )
 

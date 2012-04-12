@@ -28,4 +28,6 @@
 
 	#include "graphox/theme.cpp"
 	#include "graphox/filesystem.cpp"
+	
+	#include "graphox/gui.cpp"
 #endif

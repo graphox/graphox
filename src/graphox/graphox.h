@@ -17,6 +17,8 @@
 #include "graphox/theme.h"
 #include "graphox/filesystem.h"
 
+#include "graphox/gui.h"
+
 namespace graphox
 {
 	void init();

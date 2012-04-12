@@ -1,5 +1,3 @@
-
-
 #jansson
 
 project(jansson C)

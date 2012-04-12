@@ -557,7 +557,7 @@ float loadprogress = 0;
 
 void renderprogress(float bar, const char *text, GLuint tex, bool background)   // also used during loading
 {
-	puts("render");
+	//puts("render");
 #if 0
 	if(!inbetweenframes || envmapping) return;
 
@@ -683,7 +683,7 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
 		swapbuffers();
-		puts("renderdone");
+		//puts("renderdone");
 
 	}
 
@@ -1274,13 +1274,17 @@ void checkinput()
 
             #if !defined(WIN32) && !defined(__APPLE__)
             case SDL_VIDEORESIZE:
+            	graphox::gui::check_event(event);
                 screenres(&event.resize.w, &event.resize.h);
                 break;
             #endif
 
             case SDL_KEYDOWN:
             case SDL_KEYUP:
-                keypress(event.key.keysym.sym, event.key.state==SDL_PRESSED, event.key.keysym.unicode);
+            	if(graphox::gui::open)
+            		graphox::gui::check_event(event);
+            	else
+                	keypress(event.key.keysym.sym, event.key.state==SDL_PRESSED, event.key.keysym.unicode);
                 break;
 
             case SDL_ACTIVEEVENT:
@@ -1291,22 +1295,32 @@ void checkinput()
                 break;
 
             case SDL_MOUSEMOTION:
-                if(ignoremouse) { ignoremouse--; break; }
-                if(grabinput && !skipmousemotion(event))
-                {
-                    int dx = event.motion.xrel, dy = event.motion.yrel;
-                    checkmousemotion(dx, dy);
-                    resetmousemotion();
-                    if(!g3d_movecursor(dx, dy)) mousemove(dx, dy);
-                }
+            	if (graphox::gui::open)
+            		graphox::gui::check_event(event);
+            	else
+            	{
+		            if(ignoremouse) { ignoremouse--; break; }
+		            if(grabinput && !skipmousemotion(event))
+		            {
+		                int dx = event.motion.xrel, dy = event.motion.yrel;
+		                checkmousemotion(dx, dy);
+		                resetmousemotion();
+		                if(!g3d_movecursor(dx, dy)) mousemove(dx, dy);
+		            }
+				}
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
-                if(lasttype==event.type && lastbut==event.button.button) break; // why?? get event twice without it
-                keypress(-event.button.button, event.button.state!=0, 0);
-                lasttype = event.type;
-                lastbut = event.button.button;
+            	if(graphox::gui::open)
+            		graphox::gui::check_event(event);
+            	else
+            	{
+		            if(lasttype==event.type && lastbut==event.button.button) break; // why?? get event twice without it
+		            keypress(-event.button.button, event.button.state!=0, 0);
+		            lasttype = event.type;
+		            lastbut = event.button.button;
+				}
                 break;
 			#ifdef _ENABLE_JOYSTIC_
 
@@ -1555,7 +1569,8 @@ int main(int argc, char **argv)
 
     int dedicated = 0;
     char *load = NULL, *initscript = NULL;
-
+	bool graphox_gui = false;
+	
     #define log(s) puts("init: " s)
 
     initing = INIT_RESET;
@@ -1595,6 +1610,11 @@ int main(int argc, char **argv)
                 break;
             }
             case 'x': initscript = &argv[i][2]; break;
+            
+            case 'g':
+            	graphox_gui = atoi(&argv[i][2]) != 0;
+            	break;
+            
             default: if(!serveroption(argv[i])) gameargs.add(argv[i]); break;
         }
         else gameargs.add(argv[i]);
@@ -1658,18 +1678,21 @@ int main(int argc, char **argv)
     gl_init(scr_w, scr_h, usedcolorbits, useddepthbits, usedfsaa);
     notexture = textureload("packages/textures/notexture.png");
     if(!notexture) fatal("could not find core textures");
+    
+    log("gui");
+    graphox::gui::init("main");
 
     log("console");
     persistidents = false;
     
     if(!rawexecfile("data/stdlib.cfg", true))
     #ifdef WIN32
-    	fatal("cannot find data files did you get a virus again since you are on windows or are you just running from the wrong folder? try to run the .bat file in the main folder to solve the problem.");   // this is the first file we load.
+    	fatal("You are running from the wrong directory. Please run the bat file in the main folder and make shure that the repo dir isn't missing.");
     #else
     	#if defined(__MAC__)
-    		fatal("Donate now to solve this problem (since you have a mack you must swim in cashto by useless shit for much money) thank you :) (or just run from the right folder");
+    		fatal("Cannot find data/stdlib.cfg");
     	#else
-    		fatal("Please run from the correct folder, so run the sauerbraten_unix file like ./sauerbraten_unix when in the main folder");
+    		fatal("You are running from the wrong directory. Please run the ./sauerbraten_unix file in the main folder and make shure that the repo dir isn't missing.");
     	#endif
     #endif
     if(theme == 0)
@@ -1802,7 +1825,11 @@ int main(int argc, char **argv)
 
         inbetweenframes = false;
         if(mainmenu) gl_drawmainmenu(screen->w, screen->h);
-        else gl_drawframe(screen->w, screen->h);	
+        else gl_drawframe(screen->w, screen->h);
+        
+        if(graphox_gui && graphox::gui::open)
+        	graphox::gui::render(screen->w, screen->h);
+        
         swapbuffers();
         renderedframe = inbetweenframes = true;
     }
