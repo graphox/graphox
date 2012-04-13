@@ -9,16 +9,6 @@ include_directories(
 	engine
 	fpsgame
 	shared
-	include
-	#third_party
-	#third_party/javascript/
-	
-	#TODO: autofind these packages
-	/usr/include
-	/usr/local/include
-	/usr/include/svncpp
-	/usr/include/subversion-1
-	/usr/include/apr-1.0
 )
 
 include(CheckLibraryExists)
@@ -26,6 +16,7 @@ include(CheckLibraryExists)
 include(FindLua51)
 include(FindPythonLibs)
 include(FindDevIL)
+include(FindSDL)
 
 check_library_exists(z gzopen "" ZLIB_EXISTS)
 find_package(OpenGL REQUIRED)
@@ -61,13 +52,17 @@ if(NOT ${IL_FOUND})
 	message(FATAL_ERROR "missing required library: DEVIL")
 endif(NOT ${IL_FOUND})
 
-add_definitions(
-	-D_C2_DISABLE_UINTPTR_T_
-	-DSDL_VIDEO_DRIVER_X11 #TODO: make this unneeded
-	-DGRAPHOX_DISALE_SVN #don't forget to uncomment the cpp files	
-) #TODO: scan system
-
 add_subdirectory(third_party)
+
+add_definitions(
+	-DGRAPHOX_DISABLE_SVN
+	
+	#OFTL
+	-std=c++0x
+	
+	#cube2
+	-fpermissive
+)
 
 include_directories(
 	${CMAKE_SOURCE_DIR}/src/third_party/v8/include
@@ -75,40 +70,20 @@ include_directories(
 	${PYTHON_INCLUDE_PATH}
 	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include
 	${IL_INCLUDE_DIR}
+	${SDL_INCLUDE_DIR}
 	${JANSSON_INCLUDE_DIRS}
 )
 
-set(OFTL
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/new.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/utils.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/traits.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/algorithm.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/functional.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/iterator.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/string.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/stdio.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/pair.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/hashmap.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/hashset.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/map.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/set.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/vector.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/shared_ptr.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/random.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/filesystem.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/list.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/tuple.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/base.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/function.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/dynamic.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/table.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/state.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include/OFTL/lua/stack.h
-	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/src/filesystem/platform_posix.cpp
-)
+set(OFTL_SOURCES)
 
-add_library(OFTL ${G_COMPILE_TYPE} ${OFTL})
+
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	set(OFTL_SOURCES ${CMAKE_SOURCE_DIR}/src/third_party/OFTL/src/filesystem/platform_win32.cpp)
+else(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	set(OFTL_SOURCES ${CMAKE_SOURCE_DIR}/src/third_party/OFTL/src/filesystem/platform_posix.cpp)
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+
+add_library(OFTL ${G_COMPILE_TYPE} ${OFTL_SOURCES})
 target_link_libraries(OFTL ${LUA_LIBRARIES})
 
 link_directories(${CMAKE_SOURCE_DIR}/src/third_party/v8)
@@ -247,7 +222,6 @@ add_executable(graphox_client
 
 )
 
-add_definitions(-std=c++0x -fpermissive)
 add_library(graphox ${G_COMPILE_TYPE}
 	graphox/graphox.cpp
 )
