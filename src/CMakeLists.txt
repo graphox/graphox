@@ -14,7 +14,7 @@ include_directories(
 include(CheckLibraryExists)
 
 include(FindLua51)
-include(FindPythonLibs)
+#include(FindPythonLibs)
 include(FindDevIL)
 include(FindSDL)
 
@@ -44,9 +44,9 @@ else(NOT ${LUA51_FOUND})
 	add_definitions(-DG_LUA_51)
 endif(NOT ${LUA51_FOUND})
 
-if(NOT ${PYTHONLIBS_FOUND})
-	message(FATAL_ERROR "missing required library: PYTHON")
-endif(NOT ${PYTHONLIBS_FOUND})
+#if(NOT ${PYTHONLIBS_FOUND})
+#	message(FATAL_ERROR "missing required library: PYTHON")
+#endif(NOT ${PYTHONLIBS_FOUND})
 
 if(NOT ${IL_FOUND})
 	message(FATAL_ERROR "missing required library: DEVIL")
@@ -65,9 +65,9 @@ add_definitions(
 )
 
 include_directories(
-	${CMAKE_SOURCE_DIR}/src/third_party/v8/include
+	#${CMAKE_SOURCE_DIR}/src/third_party/v8/include
 	${LUA_INCLUDE_DIR}
-	${PYTHON_INCLUDE_PATH}
+	#${PYTHON_INCLUDE_PATH}
 	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include
 	${IL_INCLUDE_DIR}
 	${SDL_INCLUDE_DIR}
@@ -86,7 +86,7 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 add_library(OFTL ${G_COMPILE_TYPE} ${OFTL_SOURCES})
 target_link_libraries(OFTL ${LUA_LIBRARIES})
 
-link_directories(${CMAKE_SOURCE_DIR}/src/third_party/v8)
+#link_directories(${CMAKE_SOURCE_DIR}/src/third_party/v8)
 
 #due to sauer's bad design this is IMPOSSIBLE:
 #set(CUBE2_ENGINE cube2_engine CACHE INTERNAL "cube2_engine library")
@@ -235,16 +235,16 @@ target_link_libraries(graphox
     ${ZLIB_LIBRARIES}
 	${ENET_LIBRARY}
 	${LUA_LIBRARIES}
-	${PYTHON_LIBRARIES}
+	#${PYTHON_LIBRARIES}
 	${JANSON_LIBRARY}
 	${IL_LIBRARIES}
 	${ILU_LIBRARIES}
 	${ILUT_LIBRARIES}
 
 	OFTL	
-	svncpp
-	svn_client-1
-	v8
+	#svncpp
+	#svn_client-1
+	#v8
 	#-lrt
 	-lz
 )
