@@ -661,6 +661,8 @@ void glext(char *ext)
 }
 COMMAND(glext, "s");
 
+//int __G_dummy_glext = graphox::scripting::lua::push_function(glext, "glext");
+
 void gl_init(int w, int h, int bpp, int depth, int fsaa)
 {
     glViewport(0, 0, w, h);

@@ -1,3 +1,4 @@
+#include "graphox_internal.h"
 
 bool Logging::shouldshow (int level_)
 {

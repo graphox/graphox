@@ -2,7 +2,7 @@
 #ifndef GRAPHOX_EXCEPTION_CPP
 #define GRAPHOX_EXCEPTION_CPP
 
-#include "exception.h"
+#include "graphox_internal.h"
 
 namespace graphox
 {

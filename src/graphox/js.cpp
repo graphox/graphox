@@ -2,6 +2,7 @@
 #ifndef GRAPHOX_JS_CPP
 #define GRAPHOX_JS_CPP
 
+#include "graphox_internal.h"
 #include "graphox/js.h"
 
 namespace graphox

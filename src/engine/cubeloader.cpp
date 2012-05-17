@@ -345,8 +345,8 @@ struct cubeloader
                 {
                     if(type<0 || type>=C_MAXTYPE)
                     {
-                        defformatstring(t)("%d @ %d", type, k);
-                        fatal("while reading map: type out of range: ", t);
+                        defformatstring(t)("while reading map: type out of range: %d @ %d", type, k);
+                        throw new graphox::Exception(t);
                     }
                     s->type = type;
                     s->floor = f->getchar();

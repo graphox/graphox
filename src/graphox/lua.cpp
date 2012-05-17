@@ -2,16 +2,17 @@
 #ifndef GRAPHOX_LUA_CPP
 #define GRAPHOX_LUA_CPP
 
-#include "graphox/lua.h"
+#include "graphox/graphox.h"
 #include "OFTL/lua.h"
-
-namespace oftl_lua
-{
-	using namespace lua;
-}
 
 namespace graphox
 {
+
+	namespace oftl_lua
+	{
+		using namespace lua;
+	}
+
 	namespace scripting
 	{
 		using namespace lua;
@@ -19,6 +20,9 @@ namespace graphox
 		namespace lua
 		{
 			oftl_lua::State state;
+			lua_State *L = state.state();
+			oftl_lua::Table core_table = state.new_table();
+			
 			bool initialised = false;
 			
 		    void panic(const oftl_lua::State& s, const char *msg)
@@ -29,8 +33,7 @@ namespace graphox
 		    
 		    void init()
 			{
-				const char *homedir = "./";
-				
+			
 				if (initialised)
 					return;
 				else
@@ -45,45 +48,27 @@ namespace graphox
 				state.open_package();
 				state.open_debug();
 				
-				/*
-				lua_State *L  = state.state();
+				lua::module::open_luaproxy(L);
 				
-				Table loaded  = state.registry()["_LOADED"];
-				Table package = loaded["package"];
-
-				/ * home directory paths * /
-				lua_pushfstring(
-				    L, ";%sdata%c?%cinit.lua",
-					homedir, PATHDIV, PATHDIV
-				);
-				lua_pushfstring(
-				    L, ";%sdata%clibrary%c?%cinit.lua",
-				    homedir, PATHDIV, PATHDIV, PATHDIV
-				);
-
-				/ * root paths * /
-				lua_pushliteral(L, ";./data/library/core/?.lua");
-				lua_pushliteral(L, ";./data/library/core/?/init.lua");
-				lua_pushliteral(L, ";./data/?/init.lua");
-				lua_pushliteral(L, ";./data/library/?/init.lua");
-
-				lua_concat(L,  6);
-				Object str(L, -1);
-				lua_pop   (L,  1);
-				package["path"] = str;
-
-				/ * restrict package * /
-				Table pkg = state.new_table(0, 1);
-				pkg  ["seeall" ] = package["seeall"];
-				state["package"] = pkg;
-
-				setup_binds();*/
-				
-				oftl_lua::Table api_all = state.new_table();
-				//api_all["panic"] = &panic;
-				
-				state.register_module("CAPI", api_all);
+				state.register_module("CAPI", core_table);
 		    }
+	    
+		    /*void push_function(oftl_lua::Table table, const char *name, void *func_)
+		    {
+		    	//oftl_lua::Function *func = func_;
+		    	//table[name] = func;	    
+		    }*/
+		    
+			template<typename T, typename X>
+				void push_function(T function, X name)
+		    {
+
+				core_table[name] = &function;
+		    	
+		    	return 0;
+		    }
+
+			
 		    
 		    void execute(const char *filename)
 		    {

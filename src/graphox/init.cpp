@@ -2,6 +2,7 @@
 #define GRAPHOX_INIT_CPP
 
 #include "graphox/extern.h"
+#include "graphox_inrernal.h"
 
 #ifndef GRAPHOX_DISABLE_SVN	
 //	#include "graphox/repo.h"

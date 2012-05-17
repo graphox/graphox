@@ -1,3 +1,4 @@
+#include "graphox_internal.h"
 #include "repo.h"
 
 namespace graphox

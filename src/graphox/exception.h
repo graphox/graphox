@@ -9,6 +9,7 @@ namespace graphox
 	class Exception
 	{
 		public:
+			Exception(const char *message) :error_number(-1), error_message(message) {}
 			Exception(int error_num, const char *message) :error_number(error_num), error_message(message) {}
 			Exception() {};
 		

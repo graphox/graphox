@@ -181,7 +181,7 @@ void loadc(stream *f, cube &c)
         case OCTSAV_NORMAL: f->read(c.edges, 12); break;
 
         default:
-            fatal("garbage in map");
+            throw new graphox::Exception("garbage in map");
     }
     loopi(6) c.texture[i] = mapversion<14 ? f->getchar() : f->getlil<ushort>();
     if(mapversion < 7) f->seek(3, SEEK_CUR);

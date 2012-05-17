@@ -2,6 +2,7 @@
 // is largely backwards compatible with the quake console language.
 
 #include "engine.h"
+#include "graphox/exception.h"
 
 char *exchangestr(char *o, const char *n) { delete[] o; return newstring(n); }
 
@@ -620,7 +621,7 @@ char *executeret(const char *p)               // all evaluation happens here, re
 #endif
                         case 'V': v[n++] = w+1; nstor[n].i = numargs-1; v[n] = &nstor[n].i; break;
                         case 'C': if(!cargs) cargs = conc(w+1, numargs-1, true); v[n] = cargs; break;
-                        default: fatal("builtin declared with illegal type");
+                        default: throw new graphox::Exception("builtin declared with illegal type");
                     }
                     switch(n)
                     {
@@ -633,7 +634,7 @@ char *executeret(const char *p)               // all evaluation happens here, re
                         case 6: ((void (__cdecl *)(void *, void *, void *, void *, void *, void *))id->fun)(v[0], v[1], v[2], v[3], v[4], v[5]); break;
                         case 7: ((void (__cdecl *)(void *, void *, void *, void *, void *, void *, void *))id->fun)(v[0], v[1], v[2], v[3], v[4], v[5], v[6]); break;
                         case 8: ((void (__cdecl *)(void *, void *, void *, void *, void *, void *, void *, void *))id->fun)(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]); break;
-                        default: fatal("builtin declared with too many args (use V?)");
+                        default: throw new graphox::Exception("builtin declared with too many args (use V?)");
                     }
                     if(cargs) delete[] cargs;
                     setretval(commandret);

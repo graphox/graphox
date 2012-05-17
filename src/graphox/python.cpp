@@ -2,6 +2,7 @@
 #ifndef GRAPHOX_PYTHON_CPP
 #define GRAPHOX_PYTHON_CPP
 
+#include "graphox_internal.h"
 #include "Python.h"
 #include "graphox/python.h"
 

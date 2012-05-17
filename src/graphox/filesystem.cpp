@@ -2,6 +2,8 @@
 #ifndef GRAPHOX_FILESYSTEM_CPP
 #define GRAPHOX_FILESYSTEM_CPP
 
+#include "graphox_internal.h"
+
 namespace graphox
 {
 	namespace filesystem

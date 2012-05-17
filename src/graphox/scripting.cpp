@@ -2,6 +2,7 @@
 #ifndef GRAPHOX_SCRIPTING_CPP
 #define GRAPHOX_SCRIPTING_CPP
 
+#include "graphox_internal.h"
 #include "graphox/scripting.h"
 
 namespace graphox

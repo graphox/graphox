@@ -309,7 +309,7 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 void reloadfonts()
 {
     enumerate(fonts, font, f,
-        if(!reloadtexture(*f.tex)) fatal("failed to reload font texture");
+        if(!reloadtexture(*f.tex)) throw new graphox::Exception("failed to reload font texture");
     );
 }
 

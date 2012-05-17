@@ -721,7 +721,7 @@ void invertblendmap()
     previewblends(ivec(0, 0, 0), ivec(worldsize, worldsize, worldsize));
 }
 
-COMMAND(invertblendmap, "");
+//COMMAND(invertblendmap, ""); //XXX why are these not working?
 
 void showblendmap()
 {
@@ -730,7 +730,7 @@ void showblendmap()
 }
 
 COMMAND(showblendmap, "");
-COMMAND(optimizeblendmap, "");
+//COMMAND(optimizeblendmap, ""); //XXX why are these not working?
 ICOMMAND(clearblendmap, "", (),
 {
     if(noedit(true) || (nompedit && multiplayer())) return;

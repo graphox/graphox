@@ -7,3 +7,6 @@
 [submodule "src/third_party/berikelium"]
 	path = src/third_party/berikelium
 	url = https://github.com/sirikata/berkelium.git
+[submodule "src/third_party/luaproxy"]
+	path = src/third_party/luaproxy
+	url = git@github.com:graphox-us/luaproxy.git

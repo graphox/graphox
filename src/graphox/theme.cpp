@@ -1,3 +1,4 @@
+#include "graphox_internal.h"
 #if 0
 //#ifndef GRAPHOX_THEME_CPP
 #define GRAPHOX_THEME_CPP

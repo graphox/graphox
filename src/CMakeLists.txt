@@ -52,6 +52,11 @@ if(NOT ${IL_FOUND})
 	message(FATAL_ERROR "missing required library: DEVIL")
 endif(NOT ${IL_FOUND})
 
+include_directories(
+	#luaproxy
+	${LUA_INCLUDE_DIR}
+)
+
 add_subdirectory(third_party)
 
 add_definitions(
@@ -66,8 +71,8 @@ add_definitions(
 
 include_directories(
 	#${CMAKE_SOURCE_DIR}/src/third_party/v8/include
-	${LUA_INCLUDE_DIR}
 	#${PYTHON_INCLUDE_PATH}
+	${LUAPROXY_INCLUDE_PATH}
 	${CMAKE_SOURCE_DIR}/src/third_party/OFTL/include
 	${IL_INCLUDE_DIR}
 	${SDL_INCLUDE_DIR}
@@ -101,48 +106,6 @@ target_link_libraries(OFTL ${LUA_LIBRARIES})
 #target_link_libraries(${CUBE2_GAME} ${CUBE2_TOOLS} ${CUBE2_ENGINE})
 
 add_executable(graphox_client
-	shared/cube.h
-	
-	engine/engine.h
-	engine/world.h
-	engine/octa.h
-	engine/lightmap.h
-	engine/bih.h
-	engine/texture.h
-	engine/model.h
-	engine/varray.h
-	engine/textedit.h
-	engine/
-	engine/animmodel.h
-	engine/depthfx.h
-	engine/explosion.h
-	engine/iqm.h
-	engine/lensflare.h
-	engine/lightning.h
-	engine/md2.h
-	engine/md3.h
-	engine/md5.h
-	engine/model.h
-	engine/mpr.h
-	engine/obj.h
-	engine/ragdoll.h
-	engine/rendertarget.h
-	engine/scale.h
-	engine/skelmodel.h
-	engine/smd.h
-	engine/textedit.h
-	engine/texture.h
-	engine/varray.h
-	engine/vertmodel.h
-	engine/world.h
-
-	fpsgame/game.h
-	fpsgame/ai.h
-	fpsgame/game.h
-	fpsgame/capture.h
-	fpsgame/ctf.h
-
-
 	include/SDL.h
 	
 	engine/rendergl.cpp
@@ -210,23 +173,20 @@ add_executable(graphox_client
 	shared/stream.cpp
 	shared/tools.cpp
 	shared/zip.cpp
+)
 
-	#third_party/javascript/script_engine_v8.cpp
-
-	#graphox/init.cpp	
-	#graphox/svn.cpp
-	#graphox/repo.cpp
+set(GRAPHOX_LIBRARY graphox CACHE INTERNAL "the name of the graphox library")
+add_library(${GRAPHOX_LIBRARY} ${G_COMPILE_TYPE}
+	graphox/scripting.cpp
+	graphox/lua.cpp
+	graphox/exception.cpp
+	graphox/theme.cpp
+	graphox/filesystem.cpp
+	graphox/gui.cpp
 	
-	#graphox/config.cpp
-	#graphox/logging.cpp
-
 )
 
-add_library(graphox ${G_COMPILE_TYPE}
-	graphox/graphox.cpp
-)
-
-target_link_libraries(graphox
+target_link_libraries(${GRAPHOX_LIBRARY}
     ${SDL_LIBRARY}
     ${SDLMIXER_LIBRARY}
     ${SDLIMAGE_LIBRARY}
@@ -257,10 +217,10 @@ target_link_libraries(graphox_client
     ${OPENGL_LIBRARIES}
     ${ZLIB_LIBRARIES}
 	${ENET_LIBRARY}
-#	${LUA_LIBRARIES}
+	${LUA_LIBRARIES}
 #	${PYTHON_LIBRARIES}
 
-	graphox
+	${GRAPHOX_LIBRARY}
 #	svncpp
 #	svn_client-1
 #	v8

@@ -1,6 +1,8 @@
 #ifndef __CUBE_H__
 #define __CUBE_H__
 
+#include "luaproxy.hpp"
+
 #ifdef __GNUC__
 #define gamma __gamma
 #endif
@@ -15,10 +17,10 @@
 #endif
 
 #include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 #include <ctype.h>
-#include <stdarg.h>
+//#include <stdarg.h>
 #include <limits.h>
 #include <assert.h>
 #ifdef __GNUC__

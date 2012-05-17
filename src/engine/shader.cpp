@@ -69,7 +69,7 @@ void loadshaders()
     initshaders = false;
     defaultshader = lookupshaderbyname("default");
     stdworldshader = lookupshaderbyname("stdworld");
-    if(!defaultshader || !stdworldshader) fatal("cannot find shader definitions");
+    if(!defaultshader || !stdworldshader) throw new graphox::Exception("cannot find shader definitions");
 
     extern Slot dummyslot;
     dummyslot.shader = stdworldshader;

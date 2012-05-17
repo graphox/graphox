@@ -2,6 +2,7 @@
 #ifndef GRAPHOX_GUI_CPP
 #define GRAPHOX_GUI_CPP
 
+#include "graphox_internal.h"
 #include "gui.h"
 #include "GL/gl.h"
 

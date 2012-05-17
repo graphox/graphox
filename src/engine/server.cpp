@@ -720,8 +720,11 @@ bool servererror(bool dedicated, const char *desc)
         cleanupserver();
     }
     else
+    	throw new graphox::Exception(desc);
+#else
+	fatal(desc);
 #endif
-        fatal(desc);
+        
     return false;
 }
   

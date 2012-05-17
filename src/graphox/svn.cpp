@@ -1,4 +1,5 @@
 
+#include "graphox_internal.h"
 #include "graphox.h"
 #include "svn.h"
 
