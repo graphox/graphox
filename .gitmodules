@@ -10,3 +10,6 @@
 [submodule "src/third_party/luaproxy"]
 	path = src/third_party/luaproxy
 	url = git@github.com:graphox-us/luaproxy.git
+[submodule "src/third_party/lua_dbus"]
+	path = src/third_party/lua_dbus
+	url = git://git.code.sf.net/p/ldbus/code
