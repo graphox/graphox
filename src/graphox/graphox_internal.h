@@ -6,6 +6,7 @@
 	#include "OFTL/map.h"
 	#include "OFTL/hashmap.h"
 	#include "OFTL/filesystem.h"
+	#define HAS_OFTL	
 	
 	#include <unistd.h>
 

@@ -1,7 +1,10 @@
 #ifndef __CUBE_H__
 #define __CUBE_H__
 
-#include "luaproxy.hpp"
+//#include "luaproxy.hpp"
+
+#include "OFTL/lua.h"
+#define HAS_OFTL
 
 #ifdef __GNUC__
 #define gamma __gamma
@@ -23,12 +26,17 @@
 //#include <stdarg.h>
 #include <limits.h>
 #include <assert.h>
-#ifdef __GNUC__
-#include <new>
-#else
-#include <new.h>
+
+#ifndef HAS_OFTL
+	#ifdef __GNUC__
+		#include <new>
+	#else
+		#include <new.h>
+	#endif
 #endif
+
 #include <time.h>
+
 
 #ifdef WIN32
   #define WIN32_LEAN_AND_MEAN

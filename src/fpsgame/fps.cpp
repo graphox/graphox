@@ -1,5 +1,16 @@
 #include "game.h"
 
+/*
+namespace lua
+{
+	luaproxy_define(fpsent){
+		addfield(weight);
+	
+		//addmethod(hitpush);
+	}
+
+}*/
+
 namespace game
 {
 	VARP(hudtheme, 0, 1, 1);

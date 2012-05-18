@@ -7,12 +7,11 @@
 
 #include "graphox/exception.h"
 
-#ifndef G_NO_SCRIPTING
-	#include "graphox/scripting.h"
-	//#include "graphox/js.h"
-	#include "graphox/lua.h"
-	//#include "graphox/python.h"
-#endif
+#include "graphox/scripting.h"
+#include "graphox/lua.h"
+
+//#include "graphox/js.h"
+//#include "graphox/python.h"
 
 #include "graphox/theme.h"
 #include "graphox/filesystem.h"
@@ -21,6 +20,7 @@
 
 namespace graphox
 {
+	//const char *version = "1.5.0";
 	void init();
 	void init_done();
 	void main(int time);

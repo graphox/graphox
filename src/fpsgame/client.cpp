@@ -1284,6 +1284,9 @@ namespace game
             case N_INITCLIENT:            // another client either connected or changed name/team
             {
                 int cn = getint(p);
+                
+                graphox::scripting::connect(cn);
+                
                 fpsent *d = newclient(cn);
                 if(!d)
                 {

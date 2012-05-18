@@ -124,7 +124,7 @@ add_executable(graphox_client
 	engine/grass.cpp
 	engine/lightmap.cpp
 	engine/main.cpp
-	#master.cpp
+
 	engine/material.cpp
 	engine/menus.cpp
 	engine/movie.cpp
@@ -218,6 +218,7 @@ target_link_libraries(graphox_client
     ${ZLIB_LIBRARIES}
 	${ENET_LIBRARY}
 	${LUA_LIBRARIES}
+	${LUAPROXY_LIB}
 #	${PYTHON_LIBRARIES}
 
 	${GRAPHOX_LIBRARY}

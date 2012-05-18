@@ -1551,11 +1551,25 @@ void readstats()
     f->close();
 }
 
+namespace lua
+{
+	namespace module 
+	{
+		void open_luaproxy(lua_State * L);
+	}
+}
+
 int main(int argc, char **argv)
 {
-	//graphox::engineinfo_set<int &>("sdl_backingstore_bug", &sdl_backingstore_bug);
+	
 
 	graphox::scripting::init();
+	
+	//lua_State *L = graphox::scripting::get_state();
+	//lua::module::open_luaproxy(L);
+	
+	graphox::scripting::finalize_bindings();
+	
 	graphox::scripting::execute("init.lua");
 	
 	#ifdef WIN32
@@ -1569,7 +1583,7 @@ int main(int argc, char **argv)
 
     int dedicated = 0;
     char *load = NULL, *initscript = NULL;
-	bool graphox_gui = false;
+	//bool graphox_gui = false;
 	
     #define log(s) puts("init: " s)
 
@@ -1611,9 +1625,9 @@ int main(int argc, char **argv)
             }
             case 'x': initscript = &argv[i][2]; break;
             
-            case 'g':
-            	graphox_gui = atoi(&argv[i][2]) != 0;
-            	break;
+            //case 'g':
+            //	graphox_gui = atoi(&argv[i][2]) != 0;
+            //	break;
             
             default: if(!serveroption(argv[i])) gameargs.add(argv[i]); break;
         }
@@ -1679,8 +1693,8 @@ int main(int argc, char **argv)
     notexture = textureload("packages/textures/notexture.png");
     if(!notexture) fatal("could not find core textures");
     
-    log("gui");
-    graphox::gui::init("main");
+    //log("gui");
+    //graphox::gui::init("main");
 
     log("console");
     persistidents = false;
@@ -1780,6 +1794,8 @@ int main(int argc, char **argv)
 
     for(;;)
     {
+    	graphox::scripting::frame();
+    	
         static int frames = 0;
         int millis = SDL_GetTicks() - clockrealbase;
         if(clockfix) millis = int(millis*(double(clockerror)/1000000));
@@ -1827,8 +1843,8 @@ int main(int argc, char **argv)
         if(mainmenu) gl_drawmainmenu(screen->w, screen->h);
         else gl_drawframe(screen->w, screen->h);
         
-        if(graphox_gui && graphox::gui::open)
-        	graphox::gui::render(screen->w, screen->h);
+        //if(graphox_gui && graphox::gui::open)
+        //	graphox::gui::render(screen->w, screen->h);
         
         swapbuffers();
         renderedframe = inbetweenframes = true;
